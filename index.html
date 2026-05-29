@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#172026" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Hemnav" />
+    <title>Hemnav</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=6" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Huvudmeny">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div>
+            <strong>Hemnav</strong>
+            <small>En hubb</small>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="overview" type="button">
+            <span class="icon home-icon" aria-hidden="true"></span>
+            Översikt
+          </button>
+          <button class="nav-item" data-view="devices" type="button">
+            <span class="icon device-icon" aria-hidden="true"></span>
+            Enheter
+          </button>
+          <button class="nav-item" data-view="flows" type="button">
+            <span class="icon flow-icon" aria-hidden="true"></span>
+            Kopplingar
+          </button>
+          <button class="nav-item" data-view="services" type="button">
+            <span class="icon plug-icon" aria-hidden="true"></span>
+            Tjänster
+          </button>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Smart hem</p>
+            <h1>Samla dina enheter på ett ställe</h1>
+          </div>
+          <button class="primary-btn" id="addDeviceBtn" type="button">
+            <span class="plus-icon" aria-hidden="true"></span>
+            Lägg till
+          </button>
+        </header>
+
+        <section class="hero-band">
+          <div class="home-scene" aria-hidden="true">
+            <div class="house">
+              <div class="roof"></div>
+              <div class="window one"></div>
+              <div class="window two"></div>
+              <div class="door"></div>
+            </div>
+            <div class="signal signal-a"></div>
+            <div class="signal signal-b"></div>
+            <div class="node node-a"></div>
+            <div class="node node-b"></div>
+            <div class="node node-c"></div>
+          </div>
+          <div class="hero-copy">
+            <strong>3 aktiva kopplingar</strong>
+            <span>Google Home, Illumihome och Matter redo i samma vy.</span>
+          </div>
+        </section>
+
+        <section class="stats-row" aria-label="Status">
+          <article>
+            <span>Enheter</span>
+            <strong id="deviceCount">0</strong>
+          </article>
+          <article>
+            <span>Online</span>
+            <strong id="onlineCount">0</strong>
+          </article>
+          <article>
+            <span>Tjänster</span>
+            <strong id="serviceCount">0</strong>
+          </article>
+          <article>
+            <span>Kopplingar</span>
+            <strong id="flowCount">0</strong>
+          </article>
+        </section>
+
+        <section class="view active" id="overview">
+          <div class="section-head">
+            <h2>Hemläge</h2>
+            <div class="segmented" role="group" aria-label="Läge">
+              <button class="selected" type="button">Hemma</button>
+              <button type="button">Borta</button>
+              <button type="button">Natt</button>
+            </div>
+          </div>
+          <div class="split-layout">
+            <div>
+              <h3>Snabbkontroller</h3>
+              <div class="device-grid" id="quickDevices"></div>
+            </div>
+            <div>
+              <h3>Senaste händelser</h3>
+              <ol class="activity-list" id="activityList"></ol>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="devices">
+          <div class="section-head">
+            <h2>Enheter</h2>
+            <label class="search">
+              <span class="search-icon" aria-hidden="true"></span>
+              <input id="deviceSearch" type="search" placeholder="Sök enhet" />
+            </label>
+          </div>
+          <div class="device-grid" id="deviceGrid"></div>
+        </section>
+
+        <section class="view" id="flows">
+          <div class="section-head">
+            <h2>Kopplingar</h2>
+            <button class="secondary-btn" id="saveFlowBtn" type="button">Spara koppling</button>
+          </div>
+          <div class="flow-builder">
+            <label>
+              När
+              <select id="triggerSelect"></select>
+            </label>
+            <span class="flow-arrow" aria-hidden="true"></span>
+            <label>
+              Gör
+              <select id="actionSelect"></select>
+            </label>
+          </div>
+          <div class="flow-list" id="flowList"></div>
+        </section>
+
+        <section class="view" id="services">
+          <div class="section-head">
+            <h2>Tjänster</h2>
+            <button class="secondary-btn" id="syncBtn" type="button">Synka</button>
+          </div>
+          <div class="integration-panel">
+            <div>
+              <h3>Koppla konton och enheter</h3>
+              <p>
+                Google Home hämtas via en mobilbrygga med Home APIs. IllumiHome kan testas via Bluetooth
+                på mobil eller dator i Chrome/Edge. Datorstyrning går via Hemnav API.
+              </p>
+            </div>
+            <label>
+              Hemnav API-adress
+              <input id="apiBaseUrl" type="url" placeholder="Ex. http://127.0.0.1:8788" />
+            </label>
+            <label>
+              Google Home bridge-adress
+              <input id="googleBridgeUrl" type="url" placeholder="Ex. http://192.168.50.20:8787" />
+            </label>
+            <div class="integration-actions">
+              <button class="primary-btn" id="importGoogleBtn" type="button">Hämta Google Home-enheter</button>
+              <button class="secondary-btn" id="connectIllumiBtn" type="button">Sök IllumiHome via Bluetooth</button>
+            </div>
+            <p class="integration-status" id="integrationStatus" role="status"></p>
+          </div>
+          <div class="control-grid">
+            <article class="control-card">
+              <header>
+                <h3>PC</h3>
+                <span>Wake-on-LAN</span>
+              </header>
+              <label>
+                MAC-adress
+                <input id="pcMacAddress" type="text" placeholder="AA:BB:CC:DD:EE:FF" />
+              </label>
+              <button class="secondary-btn" id="wakePcBtn" type="button">Starta PC</button>
+            </article>
+
+            <article class="control-card">
+              <header>
+                <h3>Samsung TV</h3>
+                <span>Nätverksfjärr</span>
+              </header>
+              <label>
+                TV-IP
+                <input id="samsungTvIp" type="text" placeholder="192.168.50.30" />
+              </label>
+              <div class="remote-pad" aria-label="Samsung TV fjärrkontroll">
+                <button type="button" data-samsung-key="KEY_UP">Upp</button>
+                <button type="button" data-samsung-key="KEY_LEFT">Vänster</button>
+                <button type="button" data-samsung-key="KEY_ENTER">OK</button>
+                <button type="button" data-samsung-key="KEY_RIGHT">Höger</button>
+                <button type="button" data-samsung-key="KEY_DOWN">Ner</button>
+                <button type="button" data-samsung-key="KEY_HOME">Home</button>
+                <button type="button" data-samsung-key="KEY_RETURN">Tillbaka</button>
+                <button type="button" data-samsung-key="KEY_POWER">Power</button>
+              </div>
+            </article>
+
+            <article class="control-card">
+              <header>
+                <h3>PS5</h3>
+                <span>Remote Play</span>
+              </header>
+              <p>Startar Sonys Remote Play-app på datorn om den är installerad.</p>
+              <button class="secondary-btn" id="openPsRemoteBtn" type="button">Öppna PS Remote Play</button>
+            </article>
+
+            <article class="control-card">
+              <header>
+                <h3>Apple TV</h3>
+                <span>AirPlay</span>
+              </header>
+              <p>AirPlay-sändning görs av iOS/macOS. Hemnav kan vara kontrollpanel och companion.</p>
+              <button class="secondary-btn" id="airplayInfoBtn" type="button">Visa AirPlay-väg</button>
+            </article>
+          </div>
+          <div class="service-grid" id="serviceGrid"></div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="deviceDialog">
+      <form method="dialog" class="dialog-body">
+        <h2>Lägg till enhet</h2>
+        <label>
+          Namn
+          <input id="newDeviceName" type="text" placeholder="Ex. Hallampa" />
+        </label>
+        <label>
+          Typ
+          <select id="newDeviceType">
+            <option>Lampa</option>
+            <option>Sensor</option>
+            <option>Termostat</option>
+            <option>Högtalare</option>
+          </select>
+        </label>
+        <label>
+          Tjänst
+          <select id="newDeviceService"></select>
+        </label>
+        <div class="dialog-actions">
+          <button class="secondary-btn" value="cancel" type="submit">Avbryt</button>
+          <button class="primary-btn" id="confirmAddDevice" value="default" type="submit">Lägg till</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="app.js?v=6"></script>
+  </body>
+</html>
