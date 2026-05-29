@@ -37,6 +37,7 @@ const settings = savedState?.settings || {
   apiBaseUrl: "http://127.0.0.1:8788",
   pcMacAddress: "",
   samsungTvIp: "192.168.50.247",
+  samsungTvMac: "",
 };
 
 const serviceGrid = document.querySelector("#serviceGrid");
@@ -52,15 +53,18 @@ const googleBridgeUrl = document.querySelector("#googleBridgeUrl");
 const apiBaseUrl = document.querySelector("#apiBaseUrl");
 const pcMacAddress = document.querySelector("#pcMacAddress");
 const samsungTvIp = document.querySelector("#samsungTvIp");
+const samsungTvMac = document.querySelector("#samsungTvMac");
 const integrationStatus = document.querySelector("#integrationStatus");
 const apiStatusCard = document.querySelector("#apiStatusCard");
 const apiStatusTitle = document.querySelector("#apiStatusTitle");
 const apiStatusText = document.querySelector("#apiStatusText");
+let lastAssistantCommand = "Hey Google, tänd kökslampa";
 
 googleBridgeUrl.value = settings.googleBridgeUrl || "";
 apiBaseUrl.value = settings.apiBaseUrl || "http://127.0.0.1:8788";
 pcMacAddress.value = settings.pcMacAddress || "";
 samsungTvIp.value = settings.samsungTvIp || "192.168.50.247";
+samsungTvMac.value = settings.samsungTvMac || "";
 
 function renderCounts() {
   document.querySelector("#deviceCount").textContent = devices.length;
@@ -74,6 +78,7 @@ function saveState() {
   settings.apiBaseUrl = apiBaseUrl.value.trim() || "http://127.0.0.1:8788";
   settings.pcMacAddress = pcMacAddress.value.trim();
   settings.samsungTvIp = samsungTvIp.value.trim();
+  settings.samsungTvMac = samsungTvMac.value.trim();
   localStorage.setItem(storageKey, JSON.stringify({ services, devices, flows, activities, settings }));
 }
 
@@ -106,6 +111,27 @@ function normalizeImportedDevice(device, sourceName) {
 
 function isLightDevice(device) {
   return /lampa|lamp|light|led|bulb|list/i.test(`${device.type || ""} ${device.name || ""}`);
+}
+
+function assistantAction(device, turnOn = !device.on) {
+  if (turnOn) {
+    return `Hey Google, tänd ${device.name}`;
+  }
+  return `Hey Google, släck ${device.name}`;
+}
+
+function speakAssistantCommand(command) {
+  lastAssistantCommand = command;
+  navigator.clipboard?.writeText(command).catch(() => {});
+  setIntegrationStatus(`Google Assistant-kommando: "${command}". Jag försöker läsa upp det nu.`, "info");
+  if (!window.speechSynthesis) {
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(command);
+  utterance.lang = "sv-SE";
+  utterance.rate = 0.9;
+  window.speechSynthesis.speak(utterance);
 }
 
 function upsertImportedDevices(importedDevices, sourceName) {
@@ -215,6 +241,30 @@ async function connectIllumiHomeBluetooth() {
   }
 }
 
+async function inspectIllumiHomeBluetooth() {
+  if (!navigator.bluetooth) {
+    setIntegrationStatus("BLE-inspektören kräver Chrome/Edge med Web Bluetooth.", "warning");
+    return;
+  }
+
+  try {
+    setIntegrationStatus("Välj IllumiHome-enheten igen för BLE-inspektion...");
+    const bluetoothDevice = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: ["battery_service", "device_information"],
+    });
+    const server = await bluetoothDevice.gatt.connect();
+    const foundServices = await server.getPrimaryServices();
+    const names = foundServices.map((service) => service.uuid).join(", ");
+    setIntegrationStatus(
+      names ? `BLE services för ${bluetoothDevice.name || "IllumiHome"}: ${names}` : "Chrome gav ingen service-lista. Vi behöver IllumiHomes privata service-UUID.",
+      names ? "success" : "warning",
+    );
+  } catch (error) {
+    setIntegrationStatus(`BLE-inspektion misslyckades. ${error.message}`, "warning");
+  }
+}
+
 async function callLocalApi(path, body = {}) {
   saveState();
   const baseUrl = apiBaseUrl.value.trim().replace(/\/$/, "");
@@ -268,6 +318,20 @@ async function wakePc() {
   }
 }
 
+async function wakeTv() {
+  try {
+    const mac = samsungTvMac.value.trim();
+    if (!mac) {
+      setIntegrationStatus("Fyll i TV:ns MAC-adress först. Den finns i TV:ns nätverksinformation eller i routern.", "warning");
+      return;
+    }
+    await callLocalApi("/api/pc/wake", { mac });
+    setIntegrationStatus("Wake-on-LAN skickat till Samsung TV.", "success");
+  } catch (error) {
+    setIntegrationStatus(`Kunde inte väcka TV:n. ${error.message}`, "warning");
+  }
+}
+
 async function sendSamsungKey(key) {
   try {
     const host = samsungTvIp.value.trim();
@@ -300,7 +364,7 @@ function showAirPlayInfo() {
 
 function showHomeMiniHelp() {
   setIntegrationStatus(
-    "Google Home Mini kan tyvärr inte logga in åt Hemnav eller lämna ut alla Google Home-enheter. Den kan ta röstkommandon och Cast-ljud, men enhetslistan kräver Google Home APIs via Android/iOS eller Home Assistant/SmartThings som mellanlager.",
+    "Gratisläget använder Home Mini som röstbrygga: tryck på en Google Home-enhet så spelar Hemnav upp ett Hey Google-kommando. Det kräver att datorns högtalare hörs av Home Mini. Enhetslistan behöver fortfarande läggas in manuellt.",
     "warning",
   );
 }
@@ -355,6 +419,10 @@ function renderDevices(target, list) {
       }
     `;
     const toggleDevice = () => {
+      const nextState = !device.on;
+      if (device.service === "Google Home") {
+        speakAssistantCommand(assistantAction(device, nextState));
+      }
       device.on = !device.on;
       saveState();
       renderAll();
@@ -374,6 +442,9 @@ function renderDevices(target, list) {
     card.querySelector(".color-input")?.addEventListener("input", (event) => {
       device.color = event.target.value;
       device.on = true;
+      if (device.service === "Google Home") {
+        speakAssistantCommand(`Hey Google, sätt ${device.name} till ${device.color}`);
+      }
       saveState();
       card.style.setProperty("--device-color", device.color);
       card.querySelector(".toggle").classList.add("on");
@@ -381,6 +452,9 @@ function renderDevices(target, list) {
     card.querySelector(".brightness-input")?.addEventListener("input", (event) => {
       device.brightness = Number(event.target.value);
       device.on = true;
+      if (device.service === "Google Home") {
+        speakAssistantCommand(`Hey Google, sätt ${device.name} till ${device.brightness} procent`);
+      }
       saveState();
       card.querySelector(".toggle").classList.add("on");
     });
@@ -516,17 +590,20 @@ document.querySelector("#syncBtn").addEventListener("click", () => {
 
 document.querySelector("#importGoogleBtn").addEventListener("click", importGoogleHomeDevices);
 document.querySelector("#connectIllumiBtn").addEventListener("click", connectIllumiHomeBluetooth);
+document.querySelector("#inspectIllumiBtn").addEventListener("click", inspectIllumiHomeBluetooth);
+document.querySelector("#repeatAssistantBtn").addEventListener("click", () => speakAssistantCommand(lastAssistantCommand));
 document.querySelector("#homeMiniHelpBtn").addEventListener("click", showHomeMiniHelp);
 document.querySelector("#samsungHelpBtn").addEventListener("click", showSamsungHelp);
 document.querySelector("#illumiHelpBtn").addEventListener("click", showIllumiHelp);
 document.querySelector("#checkApiBtn").addEventListener("click", checkApiStatus);
 document.querySelector("#wakePcBtn").addEventListener("click", wakePc);
+document.querySelector("#wakeTvBtn").addEventListener("click", wakeTv);
 document.querySelector("#openPsRemoteBtn").addEventListener("click", openPsRemotePlay);
 document.querySelector("#airplayInfoBtn").addEventListener("click", showAirPlayInfo);
 document.querySelectorAll("[data-samsung-key]").forEach((button) => {
   button.addEventListener("click", () => sendSamsungKey(button.dataset.samsungKey));
 });
-[googleBridgeUrl, apiBaseUrl, pcMacAddress, samsungTvIp].forEach((input) => input.addEventListener("change", saveState));
+[googleBridgeUrl, apiBaseUrl, pcMacAddress, samsungTvIp, samsungTvMac].forEach((input) => input.addEventListener("change", saveState));
 
 document.querySelector("#addDeviceBtn").addEventListener("click", () => {
   dialog.showModal();
