@@ -543,6 +543,20 @@ h3 {
   min-height: 148px;
 }
 
+.device-card {
+  position: relative;
+  cursor: pointer;
+}
+
+.device-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px auto -1px -1px;
+  width: 4px;
+  border-radius: 8px 0 0 8px;
+  background: var(--device-color, transparent);
+}
+
 .device-card header,
 .service-card header {
   display: flex;
@@ -602,6 +616,28 @@ h3 {
 
 .toggle.on span {
   transform: translateX(22px);
+}
+
+.light-controls {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 12px;
+  align-items: end;
+  margin-top: 16px;
+}
+
+.light-controls label {
+  font-size: 0.8rem;
+}
+
+.light-controls input[type="color"] {
+  min-height: 38px;
+  padding: 3px;
+}
+
+.light-controls input[type="range"] {
+  padding: 0;
+  accent-color: var(--teal);
 }
 
 .activity-list {
@@ -1035,6 +1071,10 @@ dialog::backdrop {
 
   .device-grid,
   .service-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .light-controls {
     grid-template-columns: 1fr;
   }
 

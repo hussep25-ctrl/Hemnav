@@ -6,7 +6,7 @@ const defaultServices = [
 ];
 
 const defaultDevices = [
-  { id: 1, name: "Kökslampa", type: "Lampa", room: "Kök", service: "Google Home", online: true, on: true },
+  { id: 1, name: "Kökslampa", type: "Lampa", room: "Kök", service: "Google Home", online: true, on: true, color: "#ffd17e", brightness: 82 },
   { id: 2, name: "Hallrörelse", type: "Sensor", room: "Hall", service: "Illumihome", online: true, on: true },
   { id: 3, name: "Vardagsrum", type: "Termostat", room: "Vardagsrum", service: "Matter", online: true, on: false },
   { id: 4, name: "Sovrumshögtalare", type: "Högtalare", room: "Sovrum", service: "Google Home", online: false, on: false },
@@ -99,7 +99,13 @@ function normalizeImportedDevice(device, sourceName) {
     service: sourceName,
     online: device.online ?? device.isOnline ?? true,
     on: device.on ?? device.state?.on ?? false,
+    color: device.color || device.state?.color || (isLightDevice(device) ? "#ffd17e" : undefined),
+    brightness: device.brightness ?? device.state?.brightness ?? (isLightDevice(device) ? 80 : undefined),
   };
+}
+
+function isLightDevice(device) {
+  return /lampa|lamp|light|led|bulb|list/i.test(`${device.type || ""} ${device.name || ""}`);
 }
 
 function upsertImportedDevices(importedDevices, sourceName) {
@@ -186,6 +192,8 @@ async function connectIllumiHomeBluetooth() {
           room: "Bluetooth",
           online: true,
           on: false,
+          color: "#7ee0ce",
+          brightness: 80,
         },
       ],
       "Illumihome",
@@ -279,9 +287,31 @@ function showAirPlayInfo() {
   );
 }
 
+function showHomeMiniHelp() {
+  setIntegrationStatus(
+    "Google Home Mini kan tyvärr inte logga in åt Hemnav eller lämna ut alla Google Home-enheter. Den kan ta röstkommandon och Cast-ljud, men enhetslistan kräver Google Home APIs via Android/iOS eller Home Assistant/SmartThings som mellanlager.",
+    "warning",
+  );
+}
+
+function showSamsungHelp() {
+  setIntegrationStatus(
+    "Samsung UE58TU7175UXXC är en 2020 Tizen-TV. Koppla TV:n till samma Wi-Fi, ge den fast IP i routern, öppna SmartThings på mobilen och godkänn Hemnav när TV:n visar parkopplingsruta. Testa port 8001 först, 8002 används ofta för säker WebSocket.",
+    "info",
+  );
+}
+
+function showIllumiHelp() {
+  setIntegrationStatus(
+    "IllumiHome via dator kräver Chrome/Edge, Bluetooth påslaget, Chrome tillåtet i macOS Bluetooth-integritet och att IllumiHome-appen inte redan håller lampan ansluten. Webben kan hitta DMRRBA-enheten, men färg/ljusstyrka kräver IllumiHomes privata BLE-protokoll.",
+    "warning",
+  );
+}
+
 function renderDevices(target, list) {
   target.innerHTML = "";
   list.forEach((device) => {
+    const canColor = isLightDevice(device);
     const card = document.createElement("article");
     card.className = "device-card";
     card.innerHTML = `
@@ -298,12 +328,50 @@ function renderDevices(target, list) {
           <span></span>
         </button>
       </footer>
+      ${
+        canColor
+          ? `<div class="light-controls">
+              <label>
+                Färg
+                <input class="color-input" type="color" value="${device.color || "#ffd17e"}" aria-label="Färg för ${device.name}" />
+              </label>
+              <label>
+                Ljus
+                <input class="brightness-input" type="range" min="1" max="100" value="${device.brightness || 80}" aria-label="Ljusstyrka för ${device.name}" />
+              </label>
+            </div>`
+          : ""
+      }
     `;
-    card.querySelector(".toggle").addEventListener("click", () => {
+    const toggleDevice = () => {
       device.on = !device.on;
       saveState();
       renderAll();
+    };
+    card.addEventListener("click", toggleDevice);
+    card.querySelector(".toggle").addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleDevice();
     });
+    card.querySelectorAll("input").forEach((input) => {
+      input.addEventListener("click", (event) => event.stopPropagation());
+    });
+    card.querySelector(".color-input")?.addEventListener("input", (event) => {
+      device.color = event.target.value;
+      device.on = true;
+      saveState();
+      card.style.setProperty("--device-color", device.color);
+      card.querySelector(".toggle").classList.add("on");
+    });
+    card.querySelector(".brightness-input")?.addEventListener("input", (event) => {
+      device.brightness = Number(event.target.value);
+      device.on = true;
+      saveState();
+      card.querySelector(".toggle").classList.add("on");
+    });
+    if (device.color) {
+      card.style.setProperty("--device-color", device.color);
+    }
     target.append(card);
   });
 }
@@ -433,6 +501,9 @@ document.querySelector("#syncBtn").addEventListener("click", () => {
 
 document.querySelector("#importGoogleBtn").addEventListener("click", importGoogleHomeDevices);
 document.querySelector("#connectIllumiBtn").addEventListener("click", connectIllumiHomeBluetooth);
+document.querySelector("#homeMiniHelpBtn").addEventListener("click", showHomeMiniHelp);
+document.querySelector("#samsungHelpBtn").addEventListener("click", showSamsungHelp);
+document.querySelector("#illumiHelpBtn").addEventListener("click", showIllumiHelp);
 document.querySelector("#checkApiBtn").addEventListener("click", checkApiStatus);
 document.querySelector("#wakePcBtn").addEventListener("click", wakePc);
 document.querySelector("#openPsRemoteBtn").addEventListener("click", openPsRemotePlay);
