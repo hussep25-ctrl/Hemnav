@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=10" />
+    <link rel="stylesheet" href="styles.css?v=12" />
   </head>
   <body>
     <div class="app-shell">
@@ -182,6 +182,8 @@
             <div class="integration-actions">
               <button class="primary-btn" id="importGoogleBtn" type="button">Hämta Google Home-enheter</button>
               <button class="secondary-btn" id="connectIllumiBtn" type="button">Sök IllumiHome via Bluetooth</button>
+              <button class="secondary-btn" id="inspectIllumiBtn" type="button">Inspektera IllumiHome BLE</button>
+              <button class="secondary-btn" id="repeatAssistantBtn" type="button">Spela Google-kommando</button>
               <button class="secondary-btn" id="homeMiniHelpBtn" type="button">Home Mini?</button>
               <button class="secondary-btn" id="samsungHelpBtn" type="button">Samsung-hjälp</button>
               <button class="secondary-btn" id="illumiHelpBtn" type="button">IllumiHome-hjälp</button>
@@ -210,6 +212,11 @@
                 TV-IP
                 <input id="samsungTvIp" type="text" placeholder="192.168.50.30" />
               </label>
+              <label>
+                TV MAC-adress
+                <input id="samsungTvMac" type="text" placeholder="AA:BB:CC:DD:EE:FF" />
+              </label>
+              <button class="secondary-btn" id="wakeTvBtn" type="button">Väck TV</button>
               <div class="remote-pad" aria-label="Samsung TV fjärrkontroll">
                 <button type="button" data-samsung-key="KEY_UP">Upp</button>
                 <button type="button" data-samsung-key="KEY_LEFT">Vänster</button>
@@ -279,6 +286,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=12"></script>
   </body>
 </html>
