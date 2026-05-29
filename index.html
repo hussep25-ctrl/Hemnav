@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=9" />
+    <link rel="stylesheet" href="styles.css?v=10" />
   </head>
   <body>
     <div class="app-shell">
@@ -253,12 +253,19 @@
           <input id="newDeviceName" type="text" placeholder="Ex. Hallampa" />
         </label>
         <label>
+          Rum
+          <input id="newDeviceRoom" type="text" placeholder="Ex. Vardagsrum" />
+        </label>
+        <label>
           Typ
           <select id="newDeviceType">
             <option>Lampa</option>
+            <option>LED-list</option>
             <option>Sensor</option>
             <option>Termostat</option>
             <option>Högtalare</option>
+            <option>TV</option>
+            <option>PC</option>
           </select>
         </label>
         <label>
@@ -272,6 +279,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=9"></script>
+    <script src="app.js?v=10"></script>
   </body>
 </html>

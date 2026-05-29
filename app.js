@@ -36,7 +36,7 @@ const settings = savedState?.settings || {
   googleBridgeUrl: "",
   apiBaseUrl: "http://127.0.0.1:8788",
   pcMacAddress: "",
-  samsungTvIp: "",
+  samsungTvIp: "192.168.50.247",
 };
 
 const serviceGrid = document.querySelector("#serviceGrid");
@@ -60,7 +60,7 @@ const apiStatusText = document.querySelector("#apiStatusText");
 googleBridgeUrl.value = settings.googleBridgeUrl || "";
 apiBaseUrl.value = settings.apiBaseUrl || "http://127.0.0.1:8788";
 pcMacAddress.value = settings.pcMacAddress || "";
-samsungTvIp.value = settings.samsungTvIp || "";
+samsungTvIp.value = settings.samsungTvIp || "192.168.50.247";
 
 function renderCounts() {
   document.querySelector("#deviceCount").textContent = devices.length;
@@ -133,6 +133,17 @@ function upsertImportedDevices(importedDevices, sourceName) {
   saveState();
   renderAll();
   return { added, updated };
+}
+
+function removeDevice(deviceId) {
+  const index = devices.findIndex((device) => String(device.id) === String(deviceId));
+  if (index < 0) {
+    return;
+  }
+  const [removed] = devices.splice(index, 1);
+  activities.unshift([`${removed.name} togs bort`, "Nyss"]);
+  saveState();
+  renderAll();
 }
 
 async function importGoogleHomeDevices() {
@@ -320,7 +331,7 @@ function renderDevices(target, list) {
           <h3>${device.name}</h3>
           <span>${device.type} · ${device.room}</span>
         </div>
-        <i class="status-dot ${device.online ? "online" : ""}" title="${device.online ? "Online" : "Offline"}"></i>
+        <button class="delete-device" type="button" aria-label="Ta bort ${device.name}">×</button>
       </header>
       <footer>
         <span>${device.service}</span>
@@ -349,6 +360,10 @@ function renderDevices(target, list) {
       renderAll();
     };
     card.addEventListener("click", toggleDevice);
+    card.querySelector(".delete-device").addEventListener("click", (event) => {
+      event.stopPropagation();
+      removeDevice(device.id);
+    });
     card.querySelector(".toggle").addEventListener("click", (event) => {
       event.stopPropagation();
       toggleDevice();
@@ -520,6 +535,7 @@ document.querySelector("#addDeviceBtn").addEventListener("click", () => {
 
 document.querySelector("#confirmAddDevice").addEventListener("click", (event) => {
   const nameInput = document.querySelector("#newDeviceName");
+  const roomInput = document.querySelector("#newDeviceRoom");
   const name = nameInput.value.trim();
   if (!name) {
     event.preventDefault();
@@ -527,17 +543,22 @@ document.querySelector("#confirmAddDevice").addEventListener("click", (event) =>
     return;
   }
 
+  const type = document.querySelector("#newDeviceType").value;
+  const light = isLightDevice({ name, type });
   devices.unshift({
     id: Date.now(),
     name,
-    type: document.querySelector("#newDeviceType").value,
-    room: "Nytt rum",
+    type,
+    room: roomInput.value.trim() || "Nytt rum",
     service: newDeviceService.value,
     online: true,
     on: false,
+    color: light ? "#ffd17e" : undefined,
+    brightness: light ? 80 : undefined,
   });
   activities.unshift([`${name} lades till`, "Nyss"]);
   nameInput.value = "";
+  roomInput.value = "";
   saveState();
   renderAll();
 });

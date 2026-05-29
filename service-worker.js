@@ -1,9 +1,9 @@
-const cacheName = "hemnav-v9";
+const cacheName = "hemnav-v10";
 const appShell = [
   "./",
   "./index.html",
-  "./styles.css?v=9",
-  "./app.js?v=9",
+  "./styles.css?v=10",
+  "./app.js?v=10",
   "./manifest.webmanifest",
   "./icon.svg",
   "./icon-192.png",
