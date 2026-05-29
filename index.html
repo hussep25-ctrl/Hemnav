@@ -12,7 +12,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=15" />
+    <link rel="stylesheet" href="styles.css?v=17" />
   </head>
   <body>
     <div class="app-shell">
@@ -163,7 +163,7 @@
             </div>
             <label>
               Hemnav API-adress
-              <input id="apiBaseUrl" type="url" placeholder="Ex. http://127.0.0.1:8788" />
+              <input id="apiBaseUrl" type="url" value="http://127.0.0.1:8788" placeholder="http://127.0.0.1:8788" />
             </label>
             <div class="api-status-card" id="apiStatusCard">
               <span class="status-dot" id="apiStatusDot" aria-hidden="true"></span>
@@ -175,7 +175,7 @@
             </div>
             <label>
               Home Assistant URL
-              <input id="homeAssistantUrl" type="url" placeholder="Ex. http://192.168.50.20:8123" />
+              <input id="homeAssistantUrl" type="url" placeholder="Ex. http://homeassistant.local:8123" />
             </label>
             <label>
               Home Assistant token
@@ -185,6 +185,7 @@
               <button class="primary-btn" id="importHomeAssistantBtn" type="button">Hämta Deltaco/Helo via Home Assistant</button>
               <button class="secondary-btn" id="connectIllumiBtn" type="button">Sök IllumiHome via Bluetooth</button>
               <button class="secondary-btn" id="inspectIllumiBtn" type="button">Inspektera IllumiHome BLE</button>
+              <button class="secondary-btn" id="homeAssistantHelpBtn" type="button">Var hittar jag URL/token?</button>
               <button class="secondary-btn" id="tuyaHelpBtn" type="button">Deltaco/Helo-hjälp</button>
               <button class="secondary-btn" id="samsungHelpBtn" type="button">Samsung-hjälp</button>
               <button class="secondary-btn" id="illumiHelpBtn" type="button">IllumiHome-hjälp</button>
@@ -221,6 +222,7 @@
                 </label>
                 <button class="secondary-btn" id="wakeTvBtn" type="button">Väck TV</button>
               </details>
+              <button class="primary-btn" id="pairSamsungBtn" type="button">Parkoppla TV en gång</button>
               <div class="remote-pad tv-remote" aria-label="Samsung TV fjärrkontroll">
                 <button class="remote-spacer" type="button" disabled></button>
                 <button type="button" data-samsung-key="KEY_UP" aria-label="Upp">↑</button>
@@ -303,6 +305,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=15"></script>
+    <script src="app.js?v=17"></script>
   </body>
 </html>

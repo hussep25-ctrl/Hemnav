@@ -1,7 +1,7 @@
 const defaultServices = [
-  { id: "home-assistant", name: "Home Assistant", status: "Tuya/Deltaco/Helo", connected: false },
-  { id: "deltaco", name: "Deltaco Smart Home", status: "Via Home Assistant", connected: false },
-  { id: "helo", name: "Helo by Strong", status: "Via Home Assistant", connected: false },
+  { id: "home-assistant", name: "Home Assistant", status: "Kräver URL/token", connected: false },
+  { id: "deltaco", name: "Deltaco Smart Home", status: "Kopplas via Tuya/Home Assistant", connected: false },
+  { id: "helo", name: "Helo by Strong", status: "Kopplas via Tuya/Home Assistant", connected: false },
   { id: "illumihome", name: "Illumihome", status: "Ansluten", connected: true },
   { id: "matter", name: "Matter", status: "Redo", connected: true },
 ];
@@ -27,6 +27,7 @@ const defaultActivities = [
 ];
 
 const storageKey = "hemnav-state-v1";
+const defaultApiBaseUrl = "http://127.0.0.1:8788";
 const savedState = JSON.parse(localStorage.getItem(storageKey) || "null");
 
 const services = savedState?.services || defaultServices;
@@ -36,7 +37,7 @@ const activities = savedState?.activities || defaultActivities;
 const settings = savedState?.settings || {
   homeAssistantUrl: "",
   homeAssistantToken: "",
-  apiBaseUrl: "http://127.0.0.1:8788",
+  apiBaseUrl: defaultApiBaseUrl,
   pcMacAddress: "",
   samsungTvIp: "192.168.50.247",
   samsungTvMac: "",
@@ -65,7 +66,7 @@ const lightUpdateTimers = new Map();
 
 homeAssistantUrl.value = settings.homeAssistantUrl || "";
 homeAssistantToken.value = settings.homeAssistantToken || "";
-apiBaseUrl.value = settings.apiBaseUrl || "http://127.0.0.1:8788";
+apiBaseUrl.value = settings.apiBaseUrl || defaultApiBaseUrl;
 pcMacAddress.value = settings.pcMacAddress || "";
 samsungTvIp.value = settings.samsungTvIp || "192.168.50.247";
 samsungTvMac.value = settings.samsungTvMac || "";
@@ -80,7 +81,7 @@ function renderCounts() {
 function saveState() {
   settings.homeAssistantUrl = homeAssistantUrl.value.trim();
   settings.homeAssistantToken = homeAssistantToken.value.trim();
-  settings.apiBaseUrl = apiBaseUrl.value.trim() || "http://127.0.0.1:8788";
+  settings.apiBaseUrl = apiBaseUrl.value.trim() || defaultApiBaseUrl;
   settings.pcMacAddress = pcMacAddress.value.trim();
   settings.samsungTvIp = samsungTvIp.value.trim();
   settings.samsungTvMac = samsungTvMac.value.trim();
@@ -339,6 +340,21 @@ async function sendSamsungKey(key) {
   }
 }
 
+async function pairSamsungTv() {
+  try {
+    const host = samsungTvIp.value.trim();
+    if (!host) {
+      setIntegrationStatus("Fyll i Samsung TV-IP först.", "warning");
+      return;
+    }
+    setIntegrationStatus("Titta på TV:n nu och tryck Tillåt. Hemnav väntar upp till 75 sekunder för att spara token.", "info");
+    const result = await callLocalApi("/api/samsung/pair", { host });
+    setIntegrationStatus(result.message || "Samsung TV parkopplad.", "success");
+  } catch (error) {
+    setIntegrationStatus(`Parkoppling misslyckades. ${error.message}`, "warning");
+  }
+}
+
 async function toggleHomeAssistantDevice(device, nextState) {
   await callLocalApi("/api/home-assistant/toggle", {
     baseUrl: homeAssistantUrl.value.trim(),
@@ -394,7 +410,14 @@ function showAirPlayInfo() {
 
 function showTuyaHelp() {
   setIntegrationStatus(
-    "Deltaco Smart Home och Helo by Strong brukar gå via Tuya/Smart Life. Lägg dem i Tuya eller Smart Life, koppla Tuya i Home Assistant, skapa en långlivad token i Home Assistant och tryck sedan Hämta Deltaco/Helo.",
+    "Deltaco Smart Home och Helo by Strong dyker inte upp direkt här. Lägg dem först i Smart Life/Tuya eller Deltaco-appen, koppla Tuya i Home Assistant, och hämta dem sedan med Home Assistant-knappen.",
+    "info",
+  );
+}
+
+function showHomeAssistantHelp() {
+  setIntegrationStatus(
+    "Home Assistant URL är adressen till Home Assistant hemma, oftast http://homeassistant.local:8123 eller http://din-home-assistant-ip:8123. Token hittar du i Home Assistant: klicka din profil längst ner till vänster, scrolla längst ner, skapa Long-Lived Access Token och klistra in den här.",
     "info",
   );
 }
@@ -523,6 +546,10 @@ function renderServices() {
         importHomeAssistantDevices();
         return;
       }
+      if (service.name === "Deltaco Smart Home" || service.name === "Helo by Strong") {
+        showTuyaHelp();
+        return;
+      }
       if (service.name === "Illumihome") {
         connectIllumiHomeBluetooth();
         return;
@@ -626,12 +653,14 @@ document.querySelector("#syncBtn").addEventListener("click", () => {
 document.querySelector("#importHomeAssistantBtn").addEventListener("click", importHomeAssistantDevices);
 document.querySelector("#connectIllumiBtn").addEventListener("click", connectIllumiHomeBluetooth);
 document.querySelector("#inspectIllumiBtn").addEventListener("click", inspectIllumiHomeBluetooth);
+document.querySelector("#homeAssistantHelpBtn").addEventListener("click", showHomeAssistantHelp);
 document.querySelector("#tuyaHelpBtn").addEventListener("click", showTuyaHelp);
 document.querySelector("#samsungHelpBtn").addEventListener("click", showSamsungHelp);
 document.querySelector("#illumiHelpBtn").addEventListener("click", showIllumiHelp);
 document.querySelector("#checkApiBtn").addEventListener("click", checkApiStatus);
 document.querySelector("#wakePcBtn").addEventListener("click", wakePc);
 document.querySelector("#wakeTvBtn").addEventListener("click", wakeTv);
+document.querySelector("#pairSamsungBtn").addEventListener("click", pairSamsungTv);
 document.querySelector("#openPsRemoteBtn").addEventListener("click", openPsRemotePlay);
 document.querySelector("#airplayInfoBtn").addEventListener("click", showAirPlayInfo);
 document.querySelectorAll("[data-samsung-key]").forEach((button) => {
