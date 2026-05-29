@@ -834,6 +834,23 @@ select {
   gap: 10px;
 }
 
+.setup-steps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 12px 12px 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f7faf9;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.setup-steps li::marker {
+  color: var(--teal);
+  font-weight: 800;
+}
+
 .api-status-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

@@ -1,29 +1,19 @@
 const defaultServices = [
   { id: "home-assistant", name: "Home Assistant", status: "Kräver URL/token", connected: false },
-  { id: "deltaco", name: "Deltaco Smart Home", status: "Kopplas via Tuya/Home Assistant", connected: false },
-  { id: "helo", name: "Helo by Strong", status: "Kopplas via Tuya/Home Assistant", connected: false },
-  { id: "illumihome", name: "Illumihome", status: "Ansluten", connected: true },
-  { id: "matter", name: "Matter", status: "Redo", connected: true },
+  { id: "deltaco", name: "Deltaco/Helo", status: "Väntar på Home Assistant", connected: false },
+  { id: "local-api", name: "Hemnav API", status: "PC, PS5 och TV senare", connected: false },
 ];
 
 const defaultDevices = [
-  { id: 1, name: "Deltaco lampa", type: "Lampa", room: "Kök", service: "Home Assistant", online: true, on: true, color: "#ffd17e", brightness: 82 },
-  { id: 2, name: "Hallrörelse", type: "Sensor", room: "Hall", service: "Illumihome", online: true, on: true },
-  { id: 3, name: "Vardagsrum", type: "Termostat", room: "Vardagsrum", service: "Matter", online: true, on: false },
-  { id: 4, name: "Helo plug", type: "Kontakt", room: "Sovrum", service: "Home Assistant", online: true, on: false },
+  { id: 1, name: "Väntar på Home Assistant", type: "Status", room: "Setup", service: "Home Assistant", online: false, on: false },
 ];
 
 const defaultFlows = [
-  { trigger: "Hallrörelse upptäcker rörelse", action: "Tänd Kökslampa" },
-  { trigger: "Borta aktiveras", action: "Sänk Vardagsrum" },
-  { trigger: "Natt aktiveras", action: "Stäng av Sovrumshögtalare" },
+  { trigger: "Home Assistant svarar", action: "Hämta lampor och kontakter" },
 ];
 
 const defaultActivities = [
-  ["Deltaco lampa tändes", "Nyss"],
-  ["Illumihome synkades", "08:42"],
-  ["Matter hittade termostat", "Igår"],
-  ["Home Assistant redo för Tuya", "Igår"],
+  ["Börja med Testa Home Assistant", "Nu"],
 ];
 
 const storageKey = "hemnav-state-v1";
@@ -64,7 +54,7 @@ const apiStatusTitle = document.querySelector("#apiStatusTitle");
 const apiStatusText = document.querySelector("#apiStatusText");
 const lightUpdateTimers = new Map();
 
-homeAssistantUrl.value = settings.homeAssistantUrl || "";
+homeAssistantUrl.value = settings.homeAssistantUrl || "http://homeassistant.local:8123";
 homeAssistantToken.value = settings.homeAssistantToken || "";
 apiBaseUrl.value = settings.apiBaseUrl || defaultApiBaseUrl;
 pcMacAddress.value = settings.pcMacAddress || "";
@@ -79,7 +69,7 @@ function renderCounts() {
 }
 
 function saveState() {
-  settings.homeAssistantUrl = homeAssistantUrl.value.trim();
+  settings.homeAssistantUrl = homeAssistantUrl.value.trim() || "http://homeassistant.local:8123";
   settings.homeAssistantToken = homeAssistantToken.value.trim();
   settings.apiBaseUrl = apiBaseUrl.value.trim() || defaultApiBaseUrl;
   settings.pcMacAddress = pcMacAddress.value.trim();
@@ -89,12 +79,24 @@ function saveState() {
 }
 
 if (!services.some((service) => service.name === "Home Assistant")) {
-  services.unshift({ id: "home-assistant", name: "Home Assistant", status: "Tuya/Deltaco/Helo", connected: false });
+  services.unshift({ id: "home-assistant", name: "Home Assistant", status: "Kräver URL/token", connected: false });
 }
 for (let index = services.length - 1; index >= 0; index -= 1) {
-  if (services[index].name === "Google Home") {
+  if (["Google Home", "Helo by Strong", "Matter"].includes(services[index].name)) {
     services.splice(index, 1);
   }
+}
+const oldDeltaco = services.find((service) => service.name === "Deltaco Smart Home");
+if (oldDeltaco) {
+  oldDeltaco.name = "Deltaco/Helo";
+  oldDeltaco.status = "Väntar på Home Assistant";
+  oldDeltaco.connected = false;
+}
+if (!services.some((service) => service.name === "Deltaco/Helo")) {
+  services.push({ id: "deltaco-helo", name: "Deltaco/Helo", status: "Väntar på Home Assistant", connected: false });
+}
+if (!services.some((service) => service.name === "Hemnav API")) {
+  services.push({ id: "local-api", name: "Hemnav API", status: "PC, PS5 och TV senare", connected: false });
 }
 if (devices.some((device) => device.service === "Google Home") && !services.some((service) => service.name === "Manuell")) {
   services.push({ id: "manual", name: "Manuell", status: "Lokal kontroll", connected: true });
@@ -182,7 +184,7 @@ function removeDevice(deviceId) {
 async function importHomeAssistantDevices() {
   saveState();
   try {
-    setIntegrationStatus("Hämtar Deltaco/Helo från Home Assistant...");
+    setIntegrationStatus("Hämtar lampor och kontakter från Home Assistant...");
     const data = await callLocalApi("/api/home-assistant/devices", {
       baseUrl: homeAssistantUrl.value.trim(),
       token: homeAssistantToken.value.trim(),
@@ -193,9 +195,40 @@ async function importHomeAssistantDevices() {
       service.connected = true;
       service.status = "Ansluten";
     }
-    setIntegrationStatus(`Home Assistant klart: ${result.added} nya, ${result.updated} uppdaterade.`, "success");
+    if (result.added + result.updated === 0) {
+      setIntegrationStatus("Home Assistant svarade, men inga light/switch-enheter hittades. Då är Tuya/Deltaco/Helo inte inne i Home Assistant än.", "warning");
+      return;
+    }
+    setIntegrationStatus(`Klart: ${result.added} nya och ${result.updated} uppdaterade enheter från Home Assistant.`, "success");
   } catch (error) {
     setIntegrationStatus(`Kunde inte hämta från Home Assistant. ${error.message}`, "warning");
+  }
+}
+
+async function testHomeAssistant() {
+  saveState();
+  try {
+    setIntegrationStatus("Testar Home Assistant...");
+    const data = await callLocalApi("/api/home-assistant/test", {
+      baseUrl: homeAssistantUrl.value.trim(),
+      token: homeAssistantToken.value.trim(),
+    });
+    const service = services.find((item) => item.name === "Home Assistant");
+    if (service) {
+      service.connected = true;
+      service.status = `${data.controllableEntities} styrbara enheter`;
+    }
+    const deltaco = services.find((item) => item.name === "Deltaco/Helo");
+    if (deltaco) {
+      deltaco.connected = data.controllableEntities > 0;
+      deltaco.status = data.controllableEntities > 0 ? "Redo att hämta" : "Saknas i Home Assistant";
+    }
+    activities.unshift([`Home Assistant svarade: ${data.controllableEntities} styrbara`, "Nyss"]);
+    saveState();
+    renderAll();
+    setIntegrationStatus(`Home Assistant svarar. ${data.totalEntities} entiteter totalt, ${data.controllableEntities} lampor/kontakter att hämta.`, "success");
+  } catch (error) {
+    setIntegrationStatus(`Home Assistant svarade inte. Kontrollera URL, token och att Home Assistant är installerat. ${error.message}`, "warning");
   }
 }
 
@@ -410,7 +443,7 @@ function showAirPlayInfo() {
 
 function showTuyaHelp() {
   setIntegrationStatus(
-    "Deltaco Smart Home och Helo by Strong dyker inte upp direkt här. Lägg dem först i Smart Life/Tuya eller Deltaco-appen, koppla Tuya i Home Assistant, och hämta dem sedan med Home Assistant-knappen.",
+    "Deltaco/Helo ska först synas i Home Assistant som light eller switch. Om Testa Home Assistant säger 0 styrbara enheter behöver Tuya/Deltaco/Helo kopplas klart inne i Home Assistant innan Hemnav kan göra något.",
     "info",
   );
 }
@@ -472,6 +505,10 @@ function renderDevices(target, list) {
       }
     `;
     const toggleDevice = () => {
+      if (device.type === "Status") {
+        showHomeAssistantHelp();
+        return;
+      }
       const nextState = !device.on;
       if (device.service === "Home Assistant") {
         toggleHomeAssistantDevice(device, nextState)
@@ -543,11 +580,15 @@ function renderServices() {
     `;
     card.querySelector("button").addEventListener("click", () => {
       if (service.name === "Home Assistant") {
-        importHomeAssistantDevices();
+        testHomeAssistant();
         return;
       }
-      if (service.name === "Deltaco Smart Home" || service.name === "Helo by Strong") {
+      if (service.name === "Deltaco/Helo") {
         showTuyaHelp();
+        return;
+      }
+      if (service.name === "Hemnav API") {
+        checkApiStatus();
         return;
       }
       if (service.name === "Illumihome") {
@@ -645,11 +686,10 @@ document.querySelector("#saveFlowBtn").addEventListener("click", () => {
 });
 
 document.querySelector("#syncBtn").addEventListener("click", () => {
-  activities.unshift(["Alla tjänster synkades", "Nyss"]);
-  saveState();
-  renderAll();
+  testHomeAssistant();
 });
 
+document.querySelector("#testHomeAssistantBtn").addEventListener("click", testHomeAssistant);
 document.querySelector("#importHomeAssistantBtn").addEventListener("click", importHomeAssistantDevices);
 document.querySelector("#connectIllumiBtn").addEventListener("click", connectIllumiHomeBluetooth);
 document.querySelector("#inspectIllumiBtn").addEventListener("click", inspectIllumiHomeBluetooth);

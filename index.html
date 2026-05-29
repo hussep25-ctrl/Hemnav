@@ -12,7 +12,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=17" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body>
     <div class="app-shell">
@@ -158,8 +158,8 @@
           </div>
           <div class="integration-panel">
             <div>
-              <h3>Koppla konton och enheter</h3>
-              <p>Deltaco och Helo by Strong kopplas bäst via Home Assistant + Tuya/Smart Life. Datorstyrning går via Hemnav API.</p>
+              <h3>Steg 1: Home Assistant</h3>
+              <p>Börja här. När Home Assistant svarar kan Hemnav hämta Deltaco/Helo-lampor och kontakter som visas som light eller switch.</p>
             </div>
             <label>
               Hemnav API-adress
@@ -175,21 +175,29 @@
             </div>
             <label>
               Home Assistant URL
-              <input id="homeAssistantUrl" type="url" placeholder="Ex. http://homeassistant.local:8123" />
+              <input id="homeAssistantUrl" type="url" placeholder="http://homeassistant.local:8123" />
             </label>
             <label>
               Home Assistant token
               <input id="homeAssistantToken" type="password" placeholder="Long-lived access token" />
             </label>
             <div class="integration-actions">
-              <button class="primary-btn" id="importHomeAssistantBtn" type="button">Hämta Deltaco/Helo via Home Assistant</button>
-              <button class="secondary-btn" id="connectIllumiBtn" type="button">Sök IllumiHome via Bluetooth</button>
-              <button class="secondary-btn" id="inspectIllumiBtn" type="button">Inspektera IllumiHome BLE</button>
+              <button class="primary-btn" id="testHomeAssistantBtn" type="button">Testa Home Assistant</button>
+              <button class="primary-btn" id="importHomeAssistantBtn" type="button">Hämta enheter</button>
               <button class="secondary-btn" id="homeAssistantHelpBtn" type="button">Var hittar jag URL/token?</button>
               <button class="secondary-btn" id="tuyaHelpBtn" type="button">Deltaco/Helo-hjälp</button>
+              <button class="secondary-btn" id="connectIllumiBtn" type="button">Sök IllumiHome via Bluetooth</button>
+              <button class="secondary-btn" id="inspectIllumiBtn" type="button">Inspektera IllumiHome BLE</button>
               <button class="secondary-btn" id="samsungHelpBtn" type="button">Samsung-hjälp</button>
               <button class="secondary-btn" id="illumiHelpBtn" type="button">IllumiHome-hjälp</button>
             </div>
+            <ol class="setup-steps">
+              <li>Installera eller öppna Home Assistant hemma.</li>
+              <li>Lägg Deltaco/Helo i Smart Life/Tuya eller Deltaco-appen.</li>
+              <li>Koppla Tuya i Home Assistant.</li>
+              <li>Skapa token i Home Assistant-profilen och klistra in den här.</li>
+              <li>Tryck Testa Home Assistant, sedan Hämta enheter.</li>
+            </ol>
             <p class="integration-status" id="integrationStatus" role="status"></p>
           </div>
           <div class="control-grid">
@@ -305,6 +313,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=17"></script>
+    <script src="app.js?v=18"></script>
   </body>
 </html>
