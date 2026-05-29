@@ -53,6 +53,9 @@ const apiBaseUrl = document.querySelector("#apiBaseUrl");
 const pcMacAddress = document.querySelector("#pcMacAddress");
 const samsungTvIp = document.querySelector("#samsungTvIp");
 const integrationStatus = document.querySelector("#integrationStatus");
+const apiStatusCard = document.querySelector("#apiStatusCard");
+const apiStatusTitle = document.querySelector("#apiStatusTitle");
+const apiStatusText = document.querySelector("#apiStatusText");
 
 googleBridgeUrl.value = settings.googleBridgeUrl || "";
 apiBaseUrl.value = settings.apiBaseUrl || "http://127.0.0.1:8788";
@@ -77,6 +80,14 @@ function saveState() {
 function setIntegrationStatus(message, tone = "info") {
   integrationStatus.textContent = message;
   integrationStatus.dataset.tone = tone;
+}
+
+function setApiStatus(isOnline, title, text) {
+  apiStatusCard.classList.toggle("online", isOnline);
+  apiStatusCard.classList.toggle("offline", !isOnline);
+  apiStatusCard.querySelector(".status-dot").classList.toggle("online", isOnline);
+  apiStatusTitle.textContent = title;
+  apiStatusText.textContent = text;
 }
 
 function normalizeImportedDevice(device, sourceName) {
@@ -201,6 +212,27 @@ async function callLocalApi(path, body = {}) {
     throw new Error(data.error || `API svarade ${response.status}`);
   }
   return data;
+}
+
+async function checkApiStatus() {
+  saveState();
+  const baseUrl = apiBaseUrl.value.trim().replace(/\/$/, "");
+  if (!baseUrl) {
+    setApiStatus(false, "API-adress saknas", "Fyll i adressen till din lokala Hemnav API-server.");
+    return;
+  }
+
+  setApiStatus(false, "Kontrollerar API...", baseUrl);
+  try {
+    const response = await fetch(`${baseUrl}/api/health`, { headers: { Accept: "application/json" } });
+    const data = await response.json();
+    if (!response.ok || data.ok === false) {
+      throw new Error(data.error || `Status ${response.status}`);
+    }
+    setApiStatus(true, "API online", `${data.name || "Hemnav API"} svarar på ${baseUrl}`);
+  } catch (error) {
+    setApiStatus(false, "API offline", "Starta api-server.js hemma eller kontrollera adressen.");
+  }
 }
 
 async function wakePc() {
@@ -401,6 +433,7 @@ document.querySelector("#syncBtn").addEventListener("click", () => {
 
 document.querySelector("#importGoogleBtn").addEventListener("click", importGoogleHomeDevices);
 document.querySelector("#connectIllumiBtn").addEventListener("click", connectIllumiHomeBluetooth);
+document.querySelector("#checkApiBtn").addEventListener("click", checkApiStatus);
 document.querySelector("#wakePcBtn").addEventListener("click", wakePc);
 document.querySelector("#openPsRemoteBtn").addEventListener("click", openPsRemotePlay);
 document.querySelector("#airplayInfoBtn").addEventListener("click", showAirPlayInfo);
@@ -450,3 +483,4 @@ if ("serviceWorker" in navigator) {
 
 renderAll();
 showView(location.hash.replace("#", "") || "overview");
+checkApiStatus();

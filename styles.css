@@ -780,6 +780,46 @@ select {
   gap: 10px;
 }
 
+.api-status-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 58px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f7faf9;
+}
+
+.api-status-card strong,
+.api-status-card small {
+  display: block;
+}
+
+.api-status-card small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.api-status-card .status-dot {
+  width: 12px;
+  height: 12px;
+}
+
+.api-status-card.online {
+  border-color: rgba(15, 118, 110, 0.35);
+}
+
+.api-status-card.offline {
+  border-color: rgba(217, 101, 79, 0.35);
+}
+
+.api-status-card.offline .status-dot {
+  background: var(--coral);
+  box-shadow: 0 0 0 4px rgba(217, 101, 79, 0.15);
+}
+
 .integration-status {
   grid-column: 1 / -1;
   min-height: 22px;
@@ -1001,6 +1041,15 @@ dialog::backdrop {
   .flow-item {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .api-status-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .api-status-card button {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   dialog {

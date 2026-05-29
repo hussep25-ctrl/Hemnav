@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=7" />
   </head>
   <body>
     <div class="app-shell">
@@ -167,6 +167,14 @@
               Hemnav API-adress
               <input id="apiBaseUrl" type="url" placeholder="Ex. http://127.0.0.1:8788" />
             </label>
+            <div class="api-status-card" id="apiStatusCard">
+              <span class="status-dot" id="apiStatusDot" aria-hidden="true"></span>
+              <div>
+                <strong id="apiStatusTitle">API ej kontrollerat</strong>
+                <small id="apiStatusText">Kör lokalt API hemma för PC, PS5 och Samsung TV.</small>
+              </div>
+              <button class="secondary-btn" id="checkApiBtn" type="button">Testa API</button>
+            </div>
             <label>
               Google Home bridge-adress
               <input id="googleBridgeUrl" type="url" placeholder="Ex. http://192.168.50.20:8787" />
@@ -261,6 +269,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
   </body>
 </html>
