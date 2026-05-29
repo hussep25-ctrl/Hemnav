@@ -933,6 +933,17 @@ select {
   font-weight: 750;
 }
 
+.advanced-block {
+  display: grid;
+  gap: 12px;
+}
+
+.advanced-block summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 800;
+}
+
 dialog {
   width: min(440px, calc(100% - 30px));
   border: 0;

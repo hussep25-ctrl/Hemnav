@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=12" />
+    <link rel="stylesheet" href="styles.css?v=13" />
   </head>
   <body>
     <div class="app-shell">
@@ -212,11 +212,14 @@
                 TV-IP
                 <input id="samsungTvIp" type="text" placeholder="192.168.50.30" />
               </label>
-              <label>
-                TV MAC-adress
-                <input id="samsungTvMac" type="text" placeholder="AA:BB:CC:DD:EE:FF" />
-              </label>
-              <button class="secondary-btn" id="wakeTvBtn" type="button">Väck TV</button>
+              <details class="advanced-block">
+                <summary>Avancerat: väck TV</summary>
+                <label>
+                  TV MAC-adress
+                  <input id="samsungTvMac" type="text" placeholder="AA:BB:CC:DD:EE:FF" />
+                </label>
+                <button class="secondary-btn" id="wakeTvBtn" type="button">Väck TV</button>
+              </details>
               <div class="remote-pad" aria-label="Samsung TV fjärrkontroll">
                 <button type="button" data-samsung-key="KEY_UP">Upp</button>
                 <button type="button" data-samsung-key="KEY_LEFT">Vänster</button>
@@ -286,6 +289,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=12"></script>
+    <script src="app.js?v=13"></script>
   </body>
 </html>

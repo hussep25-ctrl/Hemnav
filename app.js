@@ -113,6 +113,10 @@ function isLightDevice(device) {
   return /lampa|lamp|light|led|bulb|list/i.test(`${device.type || ""} ${device.name || ""}`);
 }
 
+function canShowLightControls(device) {
+  return isLightDevice(device) && device.service !== "Illumihome";
+}
+
 function assistantAction(device, turnOn = !device.on) {
   if (turnOn) {
     return `Hey Google, tänd ${device.name}`;
@@ -386,7 +390,7 @@ function showIllumiHelp() {
 function renderDevices(target, list) {
   target.innerHTML = "";
   list.forEach((device) => {
-    const canColor = isLightDevice(device);
+    const canColor = canShowLightControls(device);
     const card = document.createElement("article");
     card.className = "device-card";
     card.innerHTML = `
@@ -422,6 +426,9 @@ function renderDevices(target, list) {
       const nextState = !device.on;
       if (device.service === "Google Home") {
         speakAssistantCommand(assistantAction(device, nextState));
+      }
+      if (device.service === "Illumihome") {
+        setIntegrationStatus("IllumiHome är hittad via Bluetooth, men riktig av/på/färg kräver BLE-protokollet. Använd Inspektera IllumiHome BLE som nästa steg.", "warning");
       }
       device.on = !device.on;
       saveState();
