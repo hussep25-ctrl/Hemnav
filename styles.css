@@ -921,16 +921,43 @@ select {
 .remote-pad {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
+  justify-items: center;
 }
 
 .remote-pad button {
-  min-height: 38px;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  min-height: 54px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 50%;
   background: #edf3f2;
   color: var(--ink);
+  font-size: 1.2rem;
   font-weight: 750;
+  box-shadow: 0 6px 16px rgba(25, 43, 51, 0.08);
+}
+
+.remote-pad button:hover {
+  border-color: rgba(15, 118, 110, 0.35);
+  background: #ffffff;
+}
+
+.remote-pad .remote-ok {
+  background: var(--teal);
+  color: #ffffff;
+}
+
+.remote-pad .remote-wide {
+  grid-column: 1 / -1;
+  width: 100%;
+  border-radius: 999px;
+}
+
+.remote-pad .remote-spacer {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .advanced-block {

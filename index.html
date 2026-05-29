@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=13" />
+    <link rel="stylesheet" href="styles.css?v=14" />
   </head>
   <body>
     <div class="app-shell">
@@ -220,15 +220,17 @@
                 </label>
                 <button class="secondary-btn" id="wakeTvBtn" type="button">Väck TV</button>
               </details>
-              <div class="remote-pad" aria-label="Samsung TV fjärrkontroll">
-                <button type="button" data-samsung-key="KEY_UP">Upp</button>
-                <button type="button" data-samsung-key="KEY_LEFT">Vänster</button>
-                <button type="button" data-samsung-key="KEY_ENTER">OK</button>
-                <button type="button" data-samsung-key="KEY_RIGHT">Höger</button>
-                <button type="button" data-samsung-key="KEY_DOWN">Ner</button>
-                <button type="button" data-samsung-key="KEY_HOME">Home</button>
-                <button type="button" data-samsung-key="KEY_RETURN">Tillbaka</button>
-                <button type="button" data-samsung-key="KEY_POWER">Power</button>
+              <div class="remote-pad tv-remote" aria-label="Samsung TV fjärrkontroll">
+                <button class="remote-spacer" type="button" disabled></button>
+                <button type="button" data-samsung-key="KEY_UP" aria-label="Upp">↑</button>
+                <button class="remote-spacer" type="button" disabled></button>
+                <button type="button" data-samsung-key="KEY_LEFT" aria-label="Vänster">←</button>
+                <button class="remote-ok" type="button" data-samsung-key="KEY_ENTER" aria-label="OK">OK</button>
+                <button type="button" data-samsung-key="KEY_RIGHT" aria-label="Höger">→</button>
+                <button type="button" data-samsung-key="KEY_RETURN" aria-label="Tillbaka">↩</button>
+                <button type="button" data-samsung-key="KEY_DOWN" aria-label="Ner">↓</button>
+                <button type="button" data-samsung-key="KEY_HOME" aria-label="Home">⌂</button>
+                <button class="remote-wide" type="button" data-samsung-key="KEY_POWER" aria-label="Power">⏻</button>
               </div>
             </article>
 
@@ -237,8 +239,19 @@
                 <h3>PS5</h3>
                 <span>Remote Play</span>
               </header>
-              <p>Startar Sonys Remote Play-app på datorn om den är installerad.</p>
-              <button class="secondary-btn" id="openPsRemoteBtn" type="button">Öppna PS Remote Play</button>
+              <p>Öppna Remote Play och styr med tangentkommandon.</p>
+              <button class="secondary-btn" id="openPsRemoteBtn" type="button">⏻ Öppna Remote Play</button>
+              <div class="remote-pad ps-remote" aria-label="PS5 fjärrkontroll">
+                <button class="remote-spacer" type="button" disabled></button>
+                <button type="button" data-ps-key="up" aria-label="Upp">↑</button>
+                <button class="remote-spacer" type="button" disabled></button>
+                <button type="button" data-ps-key="left" aria-label="Vänster">←</button>
+                <button class="remote-ok" type="button" data-ps-key="enter" aria-label="X">×</button>
+                <button type="button" data-ps-key="right" aria-label="Höger">→</button>
+                <button type="button" data-ps-key="back" aria-label="Tillbaka">○</button>
+                <button type="button" data-ps-key="down" aria-label="Ner">↓</button>
+                <button type="button" data-ps-key="ps" aria-label="PS">PS</button>
+              </div>
             </article>
 
             <article class="control-card">
@@ -289,6 +302,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=13"></script>
+    <script src="app.js?v=14"></script>
   </body>
 </html>

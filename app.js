@@ -359,6 +359,15 @@ async function openPsRemotePlay() {
   }
 }
 
+async function sendPsKey(key) {
+  try {
+    const result = await callLocalApi("/api/ps5/key", { key });
+    setIntegrationStatus(result.message || `Skickade PS-knapp: ${key}`, "success");
+  } catch (error) {
+    setIntegrationStatus(`Kunde inte styra PS Remote Play. ${error.message}`, "warning");
+  }
+}
+
 function showAirPlayInfo() {
   setIntegrationStatus(
     "AirPlay till Apple TV/Samsung TV startas från iPhone/macOS kontrollcenter eller videospelarens AirPlay-knapp. Hemnav kan inte själv spegla skärmen från en webbsida.",
@@ -609,6 +618,9 @@ document.querySelector("#openPsRemoteBtn").addEventListener("click", openPsRemot
 document.querySelector("#airplayInfoBtn").addEventListener("click", showAirPlayInfo);
 document.querySelectorAll("[data-samsung-key]").forEach((button) => {
   button.addEventListener("click", () => sendSamsungKey(button.dataset.samsungKey));
+});
+document.querySelectorAll("[data-ps-key]").forEach((button) => {
+  button.addEventListener("click", () => sendPsKey(button.dataset.psKey));
 });
 [googleBridgeUrl, apiBaseUrl, pcMacAddress, samsungTvIp, samsungTvMac].forEach((input) => input.addEventListener("change", saveState));
 
