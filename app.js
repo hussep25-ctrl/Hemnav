@@ -17,7 +17,8 @@ const defaultActivities = [
 ];
 
 const storageKey = "hemnav-state-v1";
-const defaultApiBaseUrl = "http://127.0.0.1:8788";
+const defaultApiBaseUrl = "http://127.0.0.1:8793";
+const apiCandidates = ["http://127.0.0.1:8793", "http://127.0.0.1:8788"];
 const savedState = JSON.parse(localStorage.getItem(storageKey) || "null");
 
 const services = savedState?.services || defaultServices;
@@ -56,7 +57,7 @@ const lightUpdateTimers = new Map();
 
 homeAssistantUrl.value = settings.homeAssistantUrl || "http://homeassistant.local:8123";
 homeAssistantToken.value = settings.homeAssistantToken || "";
-apiBaseUrl.value = settings.apiBaseUrl || defaultApiBaseUrl;
+apiBaseUrl.value = apiCandidates.includes(settings.apiBaseUrl) ? settings.apiBaseUrl : defaultApiBaseUrl;
 pcMacAddress.value = settings.pcMacAddress || "";
 samsungTvIp.value = settings.samsungTvIp || "192.168.50.247";
 samsungTvMac.value = settings.samsungTvMac || "";
@@ -310,24 +311,39 @@ async function callLocalApi(path, body = {}) {
   return data;
 }
 
+async function probeApi(baseUrl) {
+  const response = await fetch(`${baseUrl}/api/health`, { headers: { Accept: "application/json" } });
+  const data = await response.json();
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.error || `Status ${response.status}`);
+  }
+  return data;
+}
+
+async function autoDetectApi() {
+  const orderedCandidates = [apiBaseUrl.value.trim(), ...apiCandidates].filter(Boolean);
+  const uniqueCandidates = [...new Set(orderedCandidates.map((item) => item.replace(/\/$/, "")))];
+  for (const candidate of uniqueCandidates) {
+    try {
+      const data = await probeApi(candidate);
+      apiBaseUrl.value = candidate;
+      saveState();
+      setApiStatus(true, "API online", `${data.name || "Hemnav API"} svarar på ${candidate}`);
+      return candidate;
+    } catch {
+      // Testa nästa kända port.
+    }
+  }
+  throw new Error("Ingen Hemnav API svarade på 8793 eller 8788");
+}
+
 async function checkApiStatus() {
   saveState();
-  const baseUrl = apiBaseUrl.value.trim().replace(/\/$/, "");
-  if (!baseUrl) {
-    setApiStatus(false, "API-adress saknas", "Fyll i adressen till din lokala Hemnav API-server.");
-    return;
-  }
-
-  setApiStatus(false, "Kontrollerar API...", baseUrl);
+  setApiStatus(false, "Letar efter API...", "Testar 8793 och 8788 automatiskt.");
   try {
-    const response = await fetch(`${baseUrl}/api/health`, { headers: { Accept: "application/json" } });
-    const data = await response.json();
-    if (!response.ok || data.ok === false) {
-      throw new Error(data.error || `Status ${response.status}`);
-    }
-    setApiStatus(true, "API online", `${data.name || "Hemnav API"} svarar på ${baseUrl}`);
+    await autoDetectApi();
   } catch (error) {
-    setApiStatus(false, "API offline", "Starta api-server.js hemma eller kontrollera adressen.");
+    setApiStatus(false, "API offline", `${error.message}. Starta api-server.js hemma.`);
   }
 }
 
