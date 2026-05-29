@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#172026" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Hemnav" />
     <title>Hemnav</title>
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=14" />
+    <link rel="stylesheet" href="styles.css?v=15" />
   </head>
   <body>
     <div class="app-shell">
@@ -76,7 +77,7 @@
           </div>
           <div class="hero-copy">
             <strong>3 aktiva kopplingar</strong>
-            <span>Google Home, Illumihome och Matter redo i samma vy.</span>
+            <span>Deltaco, Helo, Illumihome och Samsung redo i samma vy.</span>
           </div>
         </section>
 
@@ -158,10 +159,7 @@
           <div class="integration-panel">
             <div>
               <h3>Koppla konton och enheter</h3>
-              <p>
-                Google Home hämtas via en mobilbrygga med Home APIs. IllumiHome kan testas via Bluetooth
-                på mobil eller dator i Chrome/Edge. Datorstyrning går via Hemnav API.
-              </p>
+              <p>Deltaco och Helo by Strong kopplas bäst via Home Assistant + Tuya/Smart Life. Datorstyrning går via Hemnav API.</p>
             </div>
             <label>
               Hemnav API-adress
@@ -176,15 +174,18 @@
               <button class="secondary-btn" id="checkApiBtn" type="button">Testa API</button>
             </div>
             <label>
-              Google Home bridge-adress
-              <input id="googleBridgeUrl" type="url" placeholder="Ex. http://192.168.50.20:8787" />
+              Home Assistant URL
+              <input id="homeAssistantUrl" type="url" placeholder="Ex. http://192.168.50.20:8123" />
+            </label>
+            <label>
+              Home Assistant token
+              <input id="homeAssistantToken" type="password" placeholder="Long-lived access token" />
             </label>
             <div class="integration-actions">
-              <button class="primary-btn" id="importGoogleBtn" type="button">Hämta Google Home-enheter</button>
+              <button class="primary-btn" id="importHomeAssistantBtn" type="button">Hämta Deltaco/Helo via Home Assistant</button>
               <button class="secondary-btn" id="connectIllumiBtn" type="button">Sök IllumiHome via Bluetooth</button>
               <button class="secondary-btn" id="inspectIllumiBtn" type="button">Inspektera IllumiHome BLE</button>
-              <button class="secondary-btn" id="repeatAssistantBtn" type="button">Spela Google-kommando</button>
-              <button class="secondary-btn" id="homeMiniHelpBtn" type="button">Home Mini?</button>
+              <button class="secondary-btn" id="tuyaHelpBtn" type="button">Deltaco/Helo-hjälp</button>
               <button class="secondary-btn" id="samsungHelpBtn" type="button">Samsung-hjälp</button>
               <button class="secondary-btn" id="illumiHelpBtn" type="button">IllumiHome-hjälp</button>
             </div>
@@ -302,6 +303,6 @@
       </form>
     </dialog>
 
-    <script src="app.js?v=14"></script>
+    <script src="app.js?v=15"></script>
   </body>
 </html>

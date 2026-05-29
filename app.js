@@ -1,15 +1,16 @@
 const defaultServices = [
-  { id: "google", name: "Google Home", status: "Ansluten", connected: true },
+  { id: "home-assistant", name: "Home Assistant", status: "Tuya/Deltaco/Helo", connected: false },
+  { id: "deltaco", name: "Deltaco Smart Home", status: "Via Home Assistant", connected: false },
+  { id: "helo", name: "Helo by Strong", status: "Via Home Assistant", connected: false },
   { id: "illumihome", name: "Illumihome", status: "Ansluten", connected: true },
   { id: "matter", name: "Matter", status: "Redo", connected: true },
-  { id: "hue", name: "Philips Hue", status: "Ej ansluten", connected: false },
 ];
 
 const defaultDevices = [
-  { id: 1, name: "Kökslampa", type: "Lampa", room: "Kök", service: "Google Home", online: true, on: true, color: "#ffd17e", brightness: 82 },
+  { id: 1, name: "Deltaco lampa", type: "Lampa", room: "Kök", service: "Home Assistant", online: true, on: true, color: "#ffd17e", brightness: 82 },
   { id: 2, name: "Hallrörelse", type: "Sensor", room: "Hall", service: "Illumihome", online: true, on: true },
   { id: 3, name: "Vardagsrum", type: "Termostat", room: "Vardagsrum", service: "Matter", online: true, on: false },
-  { id: 4, name: "Sovrumshögtalare", type: "Högtalare", room: "Sovrum", service: "Google Home", online: false, on: false },
+  { id: 4, name: "Helo plug", type: "Kontakt", room: "Sovrum", service: "Home Assistant", online: true, on: false },
 ];
 
 const defaultFlows = [
@@ -19,10 +20,10 @@ const defaultFlows = [
 ];
 
 const defaultActivities = [
-  ["Kökslampa tändes", "Nyss"],
+  ["Deltaco lampa tändes", "Nyss"],
   ["Illumihome synkades", "08:42"],
   ["Matter hittade termostat", "Igår"],
-  ["Google Home anslöts", "Igår"],
+  ["Home Assistant redo för Tuya", "Igår"],
 ];
 
 const storageKey = "hemnav-state-v1";
@@ -33,7 +34,8 @@ const devices = savedState?.devices || defaultDevices;
 const flows = savedState?.flows || defaultFlows;
 const activities = savedState?.activities || defaultActivities;
 const settings = savedState?.settings || {
-  googleBridgeUrl: "",
+  homeAssistantUrl: "",
+  homeAssistantToken: "",
   apiBaseUrl: "http://127.0.0.1:8788",
   pcMacAddress: "",
   samsungTvIp: "192.168.50.247",
@@ -49,7 +51,8 @@ const actionSelect = document.querySelector("#actionSelect");
 const newDeviceService = document.querySelector("#newDeviceService");
 const deviceSearch = document.querySelector("#deviceSearch");
 const dialog = document.querySelector("#deviceDialog");
-const googleBridgeUrl = document.querySelector("#googleBridgeUrl");
+const homeAssistantUrl = document.querySelector("#homeAssistantUrl");
+const homeAssistantToken = document.querySelector("#homeAssistantToken");
 const apiBaseUrl = document.querySelector("#apiBaseUrl");
 const pcMacAddress = document.querySelector("#pcMacAddress");
 const samsungTvIp = document.querySelector("#samsungTvIp");
@@ -58,9 +61,10 @@ const integrationStatus = document.querySelector("#integrationStatus");
 const apiStatusCard = document.querySelector("#apiStatusCard");
 const apiStatusTitle = document.querySelector("#apiStatusTitle");
 const apiStatusText = document.querySelector("#apiStatusText");
-let lastAssistantCommand = "Hey Google, tänd kökslampa";
+const lightUpdateTimers = new Map();
 
-googleBridgeUrl.value = settings.googleBridgeUrl || "";
+homeAssistantUrl.value = settings.homeAssistantUrl || "";
+homeAssistantToken.value = settings.homeAssistantToken || "";
 apiBaseUrl.value = settings.apiBaseUrl || "http://127.0.0.1:8788";
 pcMacAddress.value = settings.pcMacAddress || "";
 samsungTvIp.value = settings.samsungTvIp || "192.168.50.247";
@@ -74,13 +78,31 @@ function renderCounts() {
 }
 
 function saveState() {
-  settings.googleBridgeUrl = googleBridgeUrl.value.trim();
+  settings.homeAssistantUrl = homeAssistantUrl.value.trim();
+  settings.homeAssistantToken = homeAssistantToken.value.trim();
   settings.apiBaseUrl = apiBaseUrl.value.trim() || "http://127.0.0.1:8788";
   settings.pcMacAddress = pcMacAddress.value.trim();
   settings.samsungTvIp = samsungTvIp.value.trim();
   settings.samsungTvMac = samsungTvMac.value.trim();
   localStorage.setItem(storageKey, JSON.stringify({ services, devices, flows, activities, settings }));
 }
+
+if (!services.some((service) => service.name === "Home Assistant")) {
+  services.unshift({ id: "home-assistant", name: "Home Assistant", status: "Tuya/Deltaco/Helo", connected: false });
+}
+for (let index = services.length - 1; index >= 0; index -= 1) {
+  if (services[index].name === "Google Home") {
+    services.splice(index, 1);
+  }
+}
+if (devices.some((device) => device.service === "Google Home") && !services.some((service) => service.name === "Manuell")) {
+  services.push({ id: "manual", name: "Manuell", status: "Lokal kontroll", connected: true });
+}
+devices.forEach((device) => {
+  if (device.service === "Google Home") {
+    device.service = "Manuell";
+  }
+});
 
 function setIntegrationStatus(message, tone = "info") {
   integrationStatus.textContent = message;
@@ -100,12 +122,13 @@ function normalizeImportedDevice(device, sourceName) {
     id: device.id || `${sourceName}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     name: device.name || device.customName || device.roomHint || "Namnlös enhet",
     type: device.type || device.deviceType || "Enhet",
-    room: device.room || device.roomHint || device.structure || "Google Home",
+    room: device.room || device.roomHint || device.structure || "Home Assistant",
     service: sourceName,
     online: device.online ?? device.isOnline ?? true,
     on: device.on ?? device.state?.on ?? false,
     color: device.color || device.state?.color || (isLightDevice(device) ? "#ffd17e" : undefined),
     brightness: device.brightness ?? device.state?.brightness ?? (isLightDevice(device) ? 80 : undefined),
+    entityId: device.entityId,
   };
 }
 
@@ -115,27 +138,6 @@ function isLightDevice(device) {
 
 function canShowLightControls(device) {
   return isLightDevice(device) && device.service !== "Illumihome";
-}
-
-function assistantAction(device, turnOn = !device.on) {
-  if (turnOn) {
-    return `Hey Google, tänd ${device.name}`;
-  }
-  return `Hey Google, släck ${device.name}`;
-}
-
-function speakAssistantCommand(command) {
-  lastAssistantCommand = command;
-  navigator.clipboard?.writeText(command).catch(() => {});
-  setIntegrationStatus(`Google Assistant-kommando: "${command}". Jag försöker läsa upp det nu.`, "info");
-  if (!window.speechSynthesis) {
-    return;
-  }
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(command);
-  utterance.lang = "sv-SE";
-  utterance.rate = 0.9;
-  window.speechSynthesis.speak(utterance);
 }
 
 function upsertImportedDevices(importedDevices, sourceName) {
@@ -176,36 +178,23 @@ function removeDevice(deviceId) {
   renderAll();
 }
 
-async function importGoogleHomeDevices() {
-  const bridgeUrl = googleBridgeUrl.value.trim().replace(/\/$/, "");
+async function importHomeAssistantDevices() {
   saveState();
-
-  if (!bridgeUrl) {
-    setIntegrationStatus(
-      "Google Home kräver en Android/iOS-brygga med Home APIs. Fyll i bryggans adress när den körs, t.ex. http://mobilens-ip:8787.",
-      "warning",
-    );
-    return;
-  }
-
-  setIntegrationStatus("Kontaktar Google Home-bryggan...");
   try {
-    const response = await fetch(`${bridgeUrl}/google-home/devices`, { headers: { Accept: "application/json" } });
-    if (!response.ok) {
-      throw new Error(`Bridge svarade ${response.status}`);
+    setIntegrationStatus("Hämtar Deltaco/Helo från Home Assistant...");
+    const data = await callLocalApi("/api/home-assistant/devices", {
+      baseUrl: homeAssistantUrl.value.trim(),
+      token: homeAssistantToken.value.trim(),
+    });
+    const result = upsertImportedDevices(data.devices || [], "Home Assistant");
+    const service = services.find((item) => item.name === "Home Assistant");
+    if (service) {
+      service.connected = true;
+      service.status = "Ansluten";
     }
-    const data = await response.json();
-    const imported = Array.isArray(data) ? data : data.devices;
-    if (!Array.isArray(imported)) {
-      throw new Error("Svaret saknar devices-lista");
-    }
-    const result = upsertImportedDevices(imported, "Google Home");
-    setIntegrationStatus(`Google Home klart: ${result.added} nya, ${result.updated} uppdaterade.`, "success");
+    setIntegrationStatus(`Home Assistant klart: ${result.added} nya, ${result.updated} uppdaterade.`, "success");
   } catch (error) {
-    setIntegrationStatus(
-      `Kunde inte hämta från bryggan. Kontrollera adressen och att mobilen/appen har Google Home-tillstånd. (${error.message})`,
-      "warning",
-    );
+    setIntegrationStatus(`Kunde inte hämta från Home Assistant. ${error.message}`, "warning");
   }
 }
 
@@ -350,6 +339,34 @@ async function sendSamsungKey(key) {
   }
 }
 
+async function toggleHomeAssistantDevice(device, nextState) {
+  await callLocalApi("/api/home-assistant/toggle", {
+    baseUrl: homeAssistantUrl.value.trim(),
+    token: homeAssistantToken.value.trim(),
+    entityId: device.entityId || device.id,
+    on: nextState,
+  });
+}
+
+function scheduleHomeAssistantLightUpdate(device) {
+  const entityId = device.entityId || device.id;
+  clearTimeout(lightUpdateTimers.get(entityId));
+  lightUpdateTimers.set(
+    entityId,
+    setTimeout(() => {
+      callLocalApi("/api/home-assistant/light", {
+        baseUrl: homeAssistantUrl.value.trim(),
+        token: homeAssistantToken.value.trim(),
+        entityId,
+        color: device.color,
+        brightness: device.brightness,
+      })
+        .then(() => setIntegrationStatus(`${device.name} uppdaterad via Home Assistant.`, "success"))
+        .catch((error) => setIntegrationStatus(`Home Assistant kunde inte ändra ${device.name}. ${error.message}`, "warning"));
+    }, 350),
+  );
+}
+
 async function openPsRemotePlay() {
   try {
     await callLocalApi("/api/ps5/remote-play", {});
@@ -375,10 +392,10 @@ function showAirPlayInfo() {
   );
 }
 
-function showHomeMiniHelp() {
+function showTuyaHelp() {
   setIntegrationStatus(
-    "Gratisläget använder Home Mini som röstbrygga: tryck på en Google Home-enhet så spelar Hemnav upp ett Hey Google-kommando. Det kräver att datorns högtalare hörs av Home Mini. Enhetslistan behöver fortfarande läggas in manuellt.",
-    "warning",
+    "Deltaco Smart Home och Helo by Strong brukar gå via Tuya/Smart Life. Lägg dem i Tuya eller Smart Life, koppla Tuya i Home Assistant, skapa en långlivad token i Home Assistant och tryck sedan Hämta Deltaco/Helo.",
+    "info",
   );
 }
 
@@ -433,8 +450,10 @@ function renderDevices(target, list) {
     `;
     const toggleDevice = () => {
       const nextState = !device.on;
-      if (device.service === "Google Home") {
-        speakAssistantCommand(assistantAction(device, nextState));
+      if (device.service === "Home Assistant") {
+        toggleHomeAssistantDevice(device, nextState)
+          .then(() => setIntegrationStatus(`${device.name} ${nextState ? "på" : "av"} via Home Assistant.`, "success"))
+          .catch((error) => setIntegrationStatus(`Home Assistant kunde inte styra ${device.name}. ${error.message}`, "warning"));
       }
       if (device.service === "Illumihome") {
         setIntegrationStatus("IllumiHome är hittad via Bluetooth, men riktig av/på/färg kräver BLE-protokollet. Använd Inspektera IllumiHome BLE som nästa steg.", "warning");
@@ -458,8 +477,8 @@ function renderDevices(target, list) {
     card.querySelector(".color-input")?.addEventListener("input", (event) => {
       device.color = event.target.value;
       device.on = true;
-      if (device.service === "Google Home") {
-        speakAssistantCommand(`Hey Google, sätt ${device.name} till ${device.color}`);
+      if (device.service === "Home Assistant") {
+        scheduleHomeAssistantLightUpdate(device);
       }
       saveState();
       card.style.setProperty("--device-color", device.color);
@@ -468,8 +487,8 @@ function renderDevices(target, list) {
     card.querySelector(".brightness-input")?.addEventListener("input", (event) => {
       device.brightness = Number(event.target.value);
       device.on = true;
-      if (device.service === "Google Home") {
-        speakAssistantCommand(`Hey Google, sätt ${device.name} till ${device.brightness} procent`);
+      if (device.service === "Home Assistant") {
+        scheduleHomeAssistantLightUpdate(device);
       }
       saveState();
       card.querySelector(".toggle").classList.add("on");
@@ -500,8 +519,8 @@ function renderServices() {
       </footer>
     `;
     card.querySelector("button").addEventListener("click", () => {
-      if (service.name === "Google Home") {
-        importGoogleHomeDevices();
+      if (service.name === "Home Assistant") {
+        importHomeAssistantDevices();
         return;
       }
       if (service.name === "Illumihome") {
@@ -604,11 +623,10 @@ document.querySelector("#syncBtn").addEventListener("click", () => {
   renderAll();
 });
 
-document.querySelector("#importGoogleBtn").addEventListener("click", importGoogleHomeDevices);
+document.querySelector("#importHomeAssistantBtn").addEventListener("click", importHomeAssistantDevices);
 document.querySelector("#connectIllumiBtn").addEventListener("click", connectIllumiHomeBluetooth);
 document.querySelector("#inspectIllumiBtn").addEventListener("click", inspectIllumiHomeBluetooth);
-document.querySelector("#repeatAssistantBtn").addEventListener("click", () => speakAssistantCommand(lastAssistantCommand));
-document.querySelector("#homeMiniHelpBtn").addEventListener("click", showHomeMiniHelp);
+document.querySelector("#tuyaHelpBtn").addEventListener("click", showTuyaHelp);
 document.querySelector("#samsungHelpBtn").addEventListener("click", showSamsungHelp);
 document.querySelector("#illumiHelpBtn").addEventListener("click", showIllumiHelp);
 document.querySelector("#checkApiBtn").addEventListener("click", checkApiStatus);
@@ -622,7 +640,7 @@ document.querySelectorAll("[data-samsung-key]").forEach((button) => {
 document.querySelectorAll("[data-ps-key]").forEach((button) => {
   button.addEventListener("click", () => sendPsKey(button.dataset.psKey));
 });
-[googleBridgeUrl, apiBaseUrl, pcMacAddress, samsungTvIp, samsungTvMac].forEach((input) => input.addEventListener("change", saveState));
+[homeAssistantUrl, homeAssistantToken, apiBaseUrl, pcMacAddress, samsungTvIp, samsungTvMac].forEach((input) => input.addEventListener("change", saveState));
 
 document.querySelector("#addDeviceBtn").addEventListener("click", () => {
   dialog.showModal();
