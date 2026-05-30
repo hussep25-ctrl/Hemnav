@@ -17,8 +17,8 @@ const defaultActivities = [
 ];
 
 const storageKey = "hemnav-state-v1";
-const defaultApiBaseUrl = "http://127.0.0.1:8793";
-const apiCandidates = ["http://127.0.0.1:8793", "http://127.0.0.1:8788"];
+const defaultApiBaseUrl = "http://127.0.0.1:8794";
+const apiCandidates = ["http://127.0.0.1:8794", "http://127.0.0.1:8793", "http://127.0.0.1:8788"];
 const savedState = JSON.parse(localStorage.getItem(storageKey) || "null");
 
 const services = savedState?.services || defaultServices;
@@ -294,8 +294,7 @@ async function inspectIllumiHomeBluetooth() {
 }
 
 async function callLocalApi(path, body = {}) {
-  saveState();
-  const baseUrl = apiBaseUrl.value.trim().replace(/\/$/, "");
+  const baseUrl = (await autoDetectApi()).replace(/\/$/, "");
   if (!baseUrl) {
     throw new Error("Fyll i Hemnav API-adress först");
   }
@@ -308,6 +307,7 @@ async function callLocalApi(path, body = {}) {
   if (!response.ok || data.ok === false) {
     throw new Error(data.error || `API svarade ${response.status}`);
   }
+  saveState();
   return data;
 }
 
@@ -316,6 +316,9 @@ async function probeApi(baseUrl) {
   const data = await response.json();
   if (!response.ok || data.ok === false) {
     throw new Error(data.error || `Status ${response.status}`);
+  }
+  if (!data.capabilities?.homeAssistantTest) {
+    throw new Error("Gammal Hemnav API-version");
   }
   return data;
 }
