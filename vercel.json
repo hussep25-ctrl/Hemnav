@@ -1,0 +1,98 @@
+{
+  "version": 2,
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 60
+    },
+    "api/intelligence.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/chat",
+      "destination": "/api/index?route=chat"
+    },
+    {
+      "source": "/api/generate-image",
+      "destination": "/api/index?route=image"
+    },
+    {
+      "source": "/api/music",
+      "destination": "/api/index?route=music"
+    },
+    {
+      "source": "/api/weather",
+      "destination": "/api/index?route=weather"
+    },
+    {
+      "source": "/api/news",
+      "destination": "/api/index?route=news"
+    },
+    {
+      "source": "/api/websearch",
+      "destination": "/api/index?route=search"
+    },
+    {
+      "source": "/api/analyze-doc",
+      "destination": "/api/index?route=analyze"
+    },
+    {
+      "source": "/api/cv",
+      "destination": "/api/index?route=cv"
+    },
+    {
+      "source": "/api/website",
+      "destination": "/api/index?route=website"
+    },
+    {
+      "source": "/api/document",
+      "destination": "/api/index?route=document"
+    },
+    {
+      "source": "/api/agent",
+      "destination": "/api/index?route=agent"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS, DELETE, PATCH"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/(.*).html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.js)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ]
+}

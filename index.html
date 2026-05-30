@@ -1,318 +1,670 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="sv">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#172026" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Hemnav" />
-    <title>Hemnav</title>
-    <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="icon-192.png" />
-    <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=20" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <aside class="sidebar" aria-label="Huvudmeny">
-        <div class="brand">
-          <div class="brand-mark" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <div>
-            <strong>Hemnav</strong>
-            <small>En hubb</small>
+<head>
+<meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JARVIS">
+<meta name="theme-color" content="#06060a">
+<title>JARVIS 5.0 · Ctrl Labs</title>
+<meta name="description" content="JARVIS 5.0 — Din personliga AI-assistent av Ctrl Labs">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ccircle cx='50' cy='50' r='32' fill='none' stroke='white' stroke-width='1.5' stroke-opacity='0.25'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='white' stroke-width='1' stroke-opacity='0.15'/%3E%3Cline x1='18' y1='50' x2='32' y2='50' stroke='white' stroke-width='1.5' stroke-opacity='0.35'/%3E%3Cline x1='68' y1='50' x2='82' y2='50' stroke='white' stroke-width='1.5' stroke-opacity='0.35'/%3E%3Cline x1='50' y1='18' x2='50' y2='32' stroke='white' stroke-width='1.5' stroke-opacity='0.35'/%3E%3Cline x1='50' y1='68' x2='50' y2='82' stroke='white' stroke-width='1.5' stroke-opacity='0.35'/%3E%3Ctext x='50' y='67' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='38' fill='white'%3EJ%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script>
+if(localStorage.getItem('jv_version')!=='v4'){localStorage.removeItem('jv_light');localStorage.setItem('jv_version','v4');}
+(function(){
+  var a=localStorage.getItem('jv_accent')||'';
+  var l=localStorage.getItem('jv_light')==='1';
+  var accents={'':['#6366f1','#4f46e5','#6366f120','160,160,241'],teal:['#14b8a6','#0d9488','#14b8a620','20,184,166'],rose:['#f43f5e','#e11d48','#f43f5e20','244,63,94'],amber:['#f59e0b','#d97706','#f59e0b20','245,158,11'],blue:['#3b82f6','#2563eb','#3b82f620','59,130,246'],green:['#10a37f','#0d8c6d','#10a37f20','16,163,127']};
+  var t=accents[a]||accents[''];
+  var r=document.documentElement;
+  r.style.setProperty('--accent',t[0]);r.style.setProperty('--accent2',t[1]);r.style.setProperty('--accent-glow',t[2]);r.style.setProperty('--accent-rgb',t[3]);
+  if(l)document.documentElement.setAttribute('data-light','');
+})();
+</script>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash" class="active">
+  <div class="splash-inner">
+    <div class="splash-rings">
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+      <div class="ring r3"></div>
+    </div>
+    <div class="splash-logo">JARVIS</div>
+    <div class="splash-ver">5.0</div>
+    <div class="splash-bar"><div id="splashFill" class="splash-fill"></div></div>
+    <div class="splash-sub">av Ctrl Labs · AI-assistent</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var done=false;
+  function hide(){if(done)return;done=true;var s=document.getElementById('splash');var a=document.getElementById('authScreen');var app=document.getElementById('appScreen');if(s){s.classList.remove('active');setTimeout(()=>s.style.display='none',600);}if(a&&app&&!app.classList.contains('active')){a.classList.add('active');}}
+  window._splashTimer=setTimeout(hide,3500);
+  window._hideSplash=hide;
+  var fill=document.getElementById('splashFill');
+  var pct=0;var iv=setInterval(()=>{pct+=Math.random()*12;if(pct>=90){clearInterval(iv);}if(fill)fill.style.width=Math.min(pct,90)+'%';},180);
+  window._splashInterval=iv;
+})();
+</script>
+
+<canvas id="bgCanvas"></canvas>
+
+<!-- AUTH -->
+<div id="authScreen" class="screen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-logo-ring"></div>
+      <div class="auth-logo-text">JARVIS <span class="auth-ver-badge">5.0</span></div>
+      <div class="auth-tagline">Din intelligenta AI-assistent</div>
+    </div>
+    <div class="lang-strip">
+      <button onclick="window._setLang('sv')" class="lang-btn active" data-lang="sv" title="Svenska">🇸🇪</button>
+      <button onclick="window._setLang('en')" class="lang-btn" data-lang="en" title="English">🇬🇧</button>
+      <button onclick="window._setLang('ar')" class="lang-btn" data-lang="ar" title="العربية">🇸🇦</button>
+      <button onclick="window._setLang('fa')" class="lang-btn" data-lang="fa" title="فارسی">🇮🇷</button>
+      <button onclick="window._setLang('de')" class="lang-btn" data-lang="de" title="Deutsch">🇩🇪</button>
+      <button onclick="window._setLang('fr')" class="lang-btn" data-lang="fr" title="Français">🇫🇷</button>
+      <button onclick="window._setLang('es')" class="lang-btn" data-lang="es" title="Español">🇪🇸</button>
+      <button onclick="window._setLang('zh')" class="lang-btn" data-lang="zh" title="中文">🇨🇳</button>
+      <button onclick="window._setLang('ru')" class="lang-btn" data-lang="ru" title="Русский">🇷🇺</button>
+      <button onclick="window._setLang('pt')" class="lang-btn" data-lang="pt" title="Português">🇧🇷</button>
+      <button onclick="window._setLang('ja')" class="lang-btn" data-lang="ja" title="日本語">🇯🇵</button>
+    </div>
+    <script>
+      (function(){
+        var lang = localStorage.getItem('jv4_lang') || 'sv';
+        document.querySelectorAll('.lang-btn').forEach(function(b){
+          b.classList.toggle('active', b.dataset.lang === lang);
+        });
+      })();
+    </script>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="window.switchTab('login')">Logga in</button>
+      <button class="auth-tab" id="tabReg" onclick="window.switchTab('register')">Skapa konto</button>
+    </div>
+    <div id="loginForm">
+      <input class="auth-input" id="loginEmail" type="email" placeholder="E-postadress" onkeydown="if(event.key==='Enter')window.login()">
+      <input class="auth-input" id="loginPass" type="password" placeholder="Lösenord" onkeydown="if(event.key==='Enter')window.login()">
+      <a class="forgot-link" onclick="window.showForgot()">Glömt lösenord?</a>
+      <button class="auth-btn" id="loginBtn" onclick="window.login()">Logga in</button>
+    </div>
+    <div id="regForm" style="display:none">
+      <input class="auth-input" id="regName" type="text" placeholder="Ditt namn">
+      <input class="auth-input" id="regEmail" type="email" placeholder="E-postadress">
+      <input class="auth-input" id="regPass" type="password" placeholder="Lösenord (min 6 tecken)" onkeydown="if(event.key==='Enter')window.register()">
+      <button class="auth-btn" id="regBtn" onclick="window.register()">Skapa konto</button>
+    </div>
+    <div id="forgotForm" style="display:none">
+      <input class="auth-input" id="resetEmail" type="email" placeholder="Din e-postadress">
+      <button class="auth-btn" id="resetBtn" onclick="window.sendReset()">Skicka återställningslänk</button>
+      <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:10px;cursor:pointer" onclick="window.showLogin()">← Tillbaka</p>
+    </div>
+    <div class="auth-err" id="authErr"></div>
+    <div class="auth-divider"><span>eller</span></div>
+    <button class="guest-btn" onclick="window.guestLogin()">Fortsätt som gäst</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="screen">
+  <div id="sbOverlay" onclick="window.closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo" id="sbLogo">J<span>ARVIS</span> <span class="sb-ver">5.0</span></div>
+      <div class="sb-header-btns">
+        <button class="icon-btn" onclick="window.newChat()" title="Ny chatt" id="sbNewBtn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="icon-btn" onclick="window.toggleSearch()" title="Sök" id="sbSearchBtn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M10 10l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="icon-btn sb-collapse-btn" onclick="window.collapseSidebar()" title="Minimera sidebar (⌘B)" id="sbCollapseBtn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <!-- Expand button shown when collapsed -->
+    <button class="sb-expand-btn" id="sbExpandBtn" onclick="window.collapseSidebar()" title="Visa sidebar (⌘B)" style="display:none">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div id="searchBar" style="display:none;padding:8px 12px">
+      <input class="sb-search-input" id="searchInput" placeholder="Sök chattar..." oninput="window.searchChats(this.value)">
+      <input class="sb-search-input" id="chatSearchInput" placeholder="Sök i chatt..." style="margin-top:6px" oninput="window.searchInChat(this.value)">
+    </div>
+    <div class="sb-section-label">Chattar</div>
+    <div class="sb-chats" id="chatList"></div>
+    <div class="sb-nav">
+      <div class="sb-nav-item" id="adminBtn" onclick="window.openAdmin()" style="display:none"><span>👑</span>Admin</div>
+      <div class="sb-nav-item" onclick="window.openStats()"><span>📊</span><span data-i18n="nav_stats">Statistik</span></div>
+      <div class="sb-nav-item" onclick="window.openKBPanel()"><span>📚</span><span data-i18n="nav_kb">Kunskapsbas</span></div>
+      <div class="sb-nav-item" onclick="window.openAppearance()"><span>🎨</span><span data-i18n="nav_appearance">Utseende</span></div>
+      <div class="sb-nav-item" onclick="window.openSettings()"><span>⚙️</span><span data-i18n="nav_settings">Inställningar</span></div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user" onclick="window.openSettings()">
+        <div class="sb-av" id="sbAv">J</div>
+        <div class="sb-info"><div id="sbName">JARVIS</div><div id="sbEmail" style="font-size:11px;color:var(--text3)"></div></div>
+        <div id="proBadge" class="pro-badge" style="display:none">PRO</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div id="main">
+    <!-- Top bar -->
+    <div class="topbar">
+      <button class="icon-btn" id="menuBtn" onclick="window.toggleSidebar()">☰</button>
+      <div class="topbar-title" id="chatTitle">JARVIS 5.0</div>
+      <div class="topbar-right">
+        <span id="aiIndicator" class="ai-badge"></span>
+        <span id="tokenCounter" class="ai-badge" style="color:var(--accent);font-size:10px"></span>
+        <button class="icon-btn" onclick="window.regenerateLastAI()" title="Regenerera svar">🔄</button>
+        <button class="icon-btn" onclick="window.exportChat()" title="Exportera chatt (⌘E)">💾</button>
+        <div class="lang-popup-wrap">
+          <button class="icon-btn" onclick="window.toggleLangPicker()" title="Språk">🌐</button>
+          <div id="langPickerPopup" class="lang-picker-popup" style="display:none">
+            <button onclick="window._setLangApp('sv')" class="lp-btn" data-lang="sv" title="Svenska">🇸🇪<span class="lp-label">SV</span></button>
+            <button onclick="window._setLangApp('en')" class="lp-btn" data-lang="en" title="English">🇬🇧<span class="lp-label">EN</span></button>
+            <button onclick="window._setLangApp('ar')" class="lp-btn" data-lang="ar" title="العربية">🇸🇦<span class="lp-label">AR</span></button>
+            <button onclick="window._setLangApp('fa')" class="lp-btn" data-lang="fa" title="فارسی">🇮🇷<span class="lp-label">FA</span></button>
+            <button onclick="window._setLangApp('de')" class="lp-btn" data-lang="de" title="Deutsch">🇩🇪<span class="lp-label">DE</span></button>
+            <button onclick="window._setLangApp('fr')" class="lp-btn" data-lang="fr" title="Français">🇫🇷<span class="lp-label">FR</span></button>
+            <button onclick="window._setLangApp('es')" class="lp-btn" data-lang="es" title="Español">🇪🇸<span class="lp-label">ES</span></button>
+            <button onclick="window._setLangApp('zh')" class="lp-btn" data-lang="zh" title="中文">🇨🇳<span class="lp-label">ZH</span></button>
+            <button onclick="window._setLangApp('ru')" class="lp-btn" data-lang="ru" title="Русский">🇷🇺<span class="lp-label">RU</span></button>
+            <button onclick="window._setLangApp('pt')" class="lp-btn" data-lang="pt" title="Português">🇧🇷<span class="lp-label">PT</span></button>
+            <button onclick="window._setLangApp('ja')" class="lp-btn" data-lang="ja" title="日本語">🇯🇵<span class="lp-label">JA</span></button>
           </div>
         </div>
-
-        <nav class="nav-list">
-          <button class="nav-item active" data-view="overview" type="button">
-            <span class="icon home-icon" aria-hidden="true"></span>
-            Översikt
-          </button>
-          <button class="nav-item" data-view="devices" type="button">
-            <span class="icon device-icon" aria-hidden="true"></span>
-            Enheter
-          </button>
-          <button class="nav-item" data-view="flows" type="button">
-            <span class="icon flow-icon" aria-hidden="true"></span>
-            Kopplingar
-          </button>
-          <button class="nav-item" data-view="services" type="button">
-            <span class="icon plug-icon" aria-hidden="true"></span>
-            Tjänster
-          </button>
-        </nav>
-      </aside>
-
-      <main class="main">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">Smart hem</p>
-            <h1>Samla dina enheter på ett ställe</h1>
-          </div>
-          <button class="primary-btn" id="addDeviceBtn" type="button">
-            <span class="plus-icon" aria-hidden="true"></span>
-            Lägg till
-          </button>
-        </header>
-
-        <section class="hero-band">
-          <div class="home-scene" aria-hidden="true">
-            <div class="house">
-              <div class="roof"></div>
-              <div class="window one"></div>
-              <div class="window two"></div>
-              <div class="door"></div>
-            </div>
-            <div class="signal signal-a"></div>
-            <div class="signal signal-b"></div>
-            <div class="node node-a"></div>
-            <div class="node node-b"></div>
-            <div class="node node-c"></div>
-          </div>
-          <div class="hero-copy">
-            <strong>3 aktiva kopplingar</strong>
-            <span>Deltaco, Helo, Illumihome och Samsung redo i samma vy.</span>
-          </div>
-        </section>
-
-        <section class="stats-row" aria-label="Status">
-          <article>
-            <span>Enheter</span>
-            <strong id="deviceCount">0</strong>
-          </article>
-          <article>
-            <span>Online</span>
-            <strong id="onlineCount">0</strong>
-          </article>
-          <article>
-            <span>Tjänster</span>
-            <strong id="serviceCount">0</strong>
-          </article>
-          <article>
-            <span>Kopplingar</span>
-            <strong id="flowCount">0</strong>
-          </article>
-        </section>
-
-        <section class="view active" id="overview">
-          <div class="section-head">
-            <h2>Hemläge</h2>
-            <div class="segmented" role="group" aria-label="Läge">
-              <button class="selected" type="button">Hemma</button>
-              <button type="button">Borta</button>
-              <button type="button">Natt</button>
-            </div>
-          </div>
-          <div class="split-layout">
-            <div>
-              <h3>Snabbkontroller</h3>
-              <div class="device-grid" id="quickDevices"></div>
-            </div>
-            <div>
-              <h3>Senaste händelser</h3>
-              <ol class="activity-list" id="activityList"></ol>
-            </div>
-          </div>
-        </section>
-
-        <section class="view" id="devices">
-          <div class="section-head">
-            <h2>Enheter</h2>
-            <label class="search">
-              <span class="search-icon" aria-hidden="true"></span>
-              <input id="deviceSearch" type="search" placeholder="Sök enhet" />
-            </label>
-          </div>
-          <div class="device-grid" id="deviceGrid"></div>
-        </section>
-
-        <section class="view" id="flows">
-          <div class="section-head">
-            <h2>Kopplingar</h2>
-            <button class="secondary-btn" id="saveFlowBtn" type="button">Spara koppling</button>
-          </div>
-          <div class="flow-builder">
-            <label>
-              När
-              <select id="triggerSelect"></select>
-            </label>
-            <span class="flow-arrow" aria-hidden="true"></span>
-            <label>
-              Gör
-              <select id="actionSelect"></select>
-            </label>
-          </div>
-          <div class="flow-list" id="flowList"></div>
-        </section>
-
-        <section class="view" id="services">
-          <div class="section-head">
-            <h2>Tjänster</h2>
-            <button class="secondary-btn" id="syncBtn" type="button">Synka</button>
-          </div>
-          <div class="integration-panel">
-            <div>
-              <h3>Steg 1: Home Assistant</h3>
-              <p>Börja här. När Home Assistant svarar kan Hemnav hämta Deltaco/Helo-lampor och kontakter som visas som light eller switch.</p>
-            </div>
-            <label>
-              Hemnav API-adress
-              <input id="apiBaseUrl" type="url" value="http://127.0.0.1:8794" placeholder="http://127.0.0.1:8794" />
-            </label>
-            <div class="api-status-card" id="apiStatusCard">
-              <span class="status-dot" id="apiStatusDot" aria-hidden="true"></span>
-              <div>
-                <strong id="apiStatusTitle">API ej kontrollerat</strong>
-                <small id="apiStatusText">Kör lokalt API hemma för PC, PS5 och Samsung TV.</small>
-              </div>
-              <button class="secondary-btn" id="checkApiBtn" type="button">Testa API</button>
-            </div>
-            <label>
-              Home Assistant URL
-              <input id="homeAssistantUrl" type="url" placeholder="http://homeassistant.local:8123" />
-            </label>
-            <label>
-              Home Assistant token
-              <input id="homeAssistantToken" type="password" placeholder="Long-lived access token" />
-            </label>
-            <div class="integration-actions">
-              <button class="primary-btn" id="testHomeAssistantBtn" type="button">Testa Home Assistant</button>
-              <button class="primary-btn" id="importHomeAssistantBtn" type="button">Hämta enheter</button>
-              <button class="secondary-btn" id="homeAssistantHelpBtn" type="button">Var hittar jag URL/token?</button>
-              <button class="secondary-btn" id="tuyaHelpBtn" type="button">Deltaco/Helo-hjälp</button>
-              <button class="secondary-btn" id="connectIllumiBtn" type="button">Sök IllumiHome via Bluetooth</button>
-              <button class="secondary-btn" id="inspectIllumiBtn" type="button">Inspektera IllumiHome BLE</button>
-              <button class="secondary-btn" id="samsungHelpBtn" type="button">Samsung-hjälp</button>
-              <button class="secondary-btn" id="illumiHelpBtn" type="button">IllumiHome-hjälp</button>
-            </div>
-            <ol class="setup-steps">
-              <li>Installera eller öppna Home Assistant hemma.</li>
-              <li>Lägg Deltaco/Helo i Smart Life/Tuya eller Deltaco-appen.</li>
-              <li>Koppla Tuya i Home Assistant.</li>
-              <li>Skapa token i Home Assistant-profilen och klistra in den här.</li>
-              <li>Tryck Testa Home Assistant, sedan Hämta enheter.</li>
-            </ol>
-            <p class="integration-status" id="integrationStatus" role="status"></p>
-          </div>
-          <div class="control-grid">
-            <article class="control-card">
-              <header>
-                <h3>PC</h3>
-                <span>Wake-on-LAN</span>
-              </header>
-              <label>
-                MAC-adress
-                <input id="pcMacAddress" type="text" placeholder="AA:BB:CC:DD:EE:FF" />
-              </label>
-              <button class="secondary-btn" id="wakePcBtn" type="button">Starta PC</button>
-            </article>
-
-            <article class="control-card">
-              <header>
-                <h3>Samsung TV</h3>
-                <span>Nätverksfjärr</span>
-              </header>
-              <label>
-                TV-IP
-                <input id="samsungTvIp" type="text" placeholder="192.168.50.30" />
-              </label>
-              <details class="advanced-block">
-                <summary>Avancerat: väck TV</summary>
-                <label>
-                  TV MAC-adress
-                  <input id="samsungTvMac" type="text" placeholder="AA:BB:CC:DD:EE:FF" />
-                </label>
-                <button class="secondary-btn" id="wakeTvBtn" type="button">Väck TV</button>
-              </details>
-              <button class="primary-btn" id="pairSamsungBtn" type="button">Parkoppla TV en gång</button>
-              <div class="remote-pad tv-remote" aria-label="Samsung TV fjärrkontroll">
-                <button class="remote-spacer" type="button" disabled></button>
-                <button type="button" data-samsung-key="KEY_UP" aria-label="Upp">↑</button>
-                <button class="remote-spacer" type="button" disabled></button>
-                <button type="button" data-samsung-key="KEY_LEFT" aria-label="Vänster">←</button>
-                <button class="remote-ok" type="button" data-samsung-key="KEY_ENTER" aria-label="OK">OK</button>
-                <button type="button" data-samsung-key="KEY_RIGHT" aria-label="Höger">→</button>
-                <button type="button" data-samsung-key="KEY_RETURN" aria-label="Tillbaka">↩</button>
-                <button type="button" data-samsung-key="KEY_DOWN" aria-label="Ner">↓</button>
-                <button type="button" data-samsung-key="KEY_HOME" aria-label="Home">⌂</button>
-                <button class="remote-wide" type="button" data-samsung-key="KEY_POWER" aria-label="Power">⏻</button>
-              </div>
-            </article>
-
-            <article class="control-card">
-              <header>
-                <h3>PS5</h3>
-                <span>Remote Play</span>
-              </header>
-              <p>Öppna Remote Play och styr med tangentkommandon.</p>
-              <button class="secondary-btn" id="openPsRemoteBtn" type="button">⏻ Öppna Remote Play</button>
-              <div class="remote-pad ps-remote" aria-label="PS5 fjärrkontroll">
-                <button class="remote-spacer" type="button" disabled></button>
-                <button type="button" data-ps-key="up" aria-label="Upp">↑</button>
-                <button class="remote-spacer" type="button" disabled></button>
-                <button type="button" data-ps-key="left" aria-label="Vänster">←</button>
-                <button class="remote-ok" type="button" data-ps-key="enter" aria-label="X">×</button>
-                <button type="button" data-ps-key="right" aria-label="Höger">→</button>
-                <button type="button" data-ps-key="back" aria-label="Tillbaka">○</button>
-                <button type="button" data-ps-key="down" aria-label="Ner">↓</button>
-                <button type="button" data-ps-key="ps" aria-label="PS">PS</button>
-              </div>
-            </article>
-
-            <article class="control-card">
-              <header>
-                <h3>Apple TV</h3>
-                <span>AirPlay</span>
-              </header>
-              <p>AirPlay-sändning görs av iOS/macOS. Hemnav kan vara kontrollpanel och companion.</p>
-              <button class="secondary-btn" id="airplayInfoBtn" type="button">Visa AirPlay-väg</button>
-            </article>
-          </div>
-          <div class="service-grid" id="serviceGrid"></div>
-        </section>
-      </main>
+        <button class="icon-btn" onclick="window.toggleColorPicker()" title="Tema">🎨</button>
+        <div id="colorQuickPicker" style="display:none" class="color-picker-popup">
+          <button onclick="window.setAccent('')" class="color-dot accent-def" title="Standard"></button>
+          <button onclick="window.setAccent('teal')" class="color-dot accent-teal" title="Teal"></button>
+          <button onclick="window.setAccent('rose')" class="color-dot accent-rose" title="Rosa"></button>
+          <button onclick="window.setAccent('amber')" class="color-dot accent-amber" title="Amber"></button>
+          <button onclick="window.setAccent('blue')" class="color-dot accent-blue" title="Blå"></button>
+          <button onclick="window.setAccent('green')" class="color-dot accent-green" title="Grön"></button>
+          <button onclick="window.toggleLight()" class="color-dot light-toggle" id="lightModeBtn" title="Ljust/Mörkt">☀</button>
+        </div>
+      </div>
     </div>
 
-    <dialog id="deviceDialog">
-      <form method="dialog" class="dialog-body">
-        <h2>Lägg till enhet</h2>
-        <label>
-          Namn
-          <input id="newDeviceName" type="text" placeholder="Ex. Hallampa" />
-        </label>
-        <label>
-          Rum
-          <input id="newDeviceRoom" type="text" placeholder="Ex. Vardagsrum" />
-        </label>
-        <label>
-          Typ
-          <select id="newDeviceType">
-            <option>Lampa</option>
-            <option>LED-list</option>
-            <option>Sensor</option>
-            <option>Termostat</option>
-            <option>Högtalare</option>
-            <option>TV</option>
-            <option>PC</option>
-          </select>
-        </label>
-        <label>
-          Tjänst
-          <select id="newDeviceService"></select>
-        </label>
-        <div class="dialog-actions">
-          <button class="secondary-btn" value="cancel" type="submit">Avbryt</button>
-          <button class="primary-btn" id="confirmAddDevice" value="default" type="submit">Lägg till</button>
-        </div>
-      </form>
-    </dialog>
+    <!-- Tool Hub Tabs -->
+    <div class="tool-tabs" id="toolTabs">
+      <button class="tool-tab active" data-tab="chat" onclick="window.switchToolTab('chat')">
+        <span>💬</span> <span data-i18n="tab_chat">Chatt</span>
+      </button>
+      <button class="tool-tab" data-tab="search" onclick="window.switchToolTab('search')">
+        <span>🔍</span> <span data-i18n="tab_search">Sök</span>
+      </button>
+      <button class="tool-tab" data-tab="image" onclick="window.switchToolTab('image')">
+        <span>🎨</span> <span data-i18n="tab_image">Bild</span>
+      </button>
+      <button class="tool-tab" data-tab="code" onclick="window.switchToolTab('code')">
+        <span>💻</span> <span data-i18n="tab_code">Kodeditor</span>
+      </button>
+      <button class="tool-tab pro-tab" data-tab="music" onclick="window.switchToolTab('music')">
+        <span>🎵</span> Musik <span class="pro-tag">PRO</span>
+      </button>
+      <button class="tool-tab pro-tab" data-tab="film" onclick="window.switchToolTab('film')">
+        <span>🎬</span> Film <span class="pro-tag">PRO</span>
+      </button>
+      <button class="tool-tab pro-tab" data-tab="website" onclick="window.switchToolTab('website')">
+        <span>🌐</span> Hemsida <span class="pro-tag">PRO</span>
+      </button>
+    </div>
 
-    <script src="app.js?v=20"></script>
-  </body>
+    <!-- CHAT PANEL -->
+    <div id="panel-chat" class="tool-panel active">
+      <div id="specBar" style="display:none">
+        <span id="specMode">Standardläge</span>
+        <span class="spec-close" onclick="window.clearSpecMode()">✕</span>
+      </div>
+
+      <!-- ONE combined control bar -->
+      <div class="chat-controls-bar">
+
+        <!-- Left: Persona/Mode selector (merged) -->
+        <div class="ctrl-group">
+          <div class="persona-pill active" data-p="jarvis" onclick="window.switchPersona(this);window.setJarvisMode('standard')" title="Standard JARVIS"><span data-i18n="p_jarvis">🤖 JARVIS</span></div>
+          <div class="persona-pill" data-p="friendly" onclick="window.switchPersona(this)" title="Vänlig & avslappnad"><span data-i18n="p_friendly">😊 Vänlig</span></div>
+          <div class="persona-pill" data-p="mentor" onclick="window.switchPersona(this)" title="Pedagogisk lärare"><span data-i18n="p_mentor">🎓 Mentor</span></div>
+          <div class="persona-pill" data-p="creative" onclick="window.switchPersona(this)" title="Kreativ & inspirerande"><span data-i18n="p_creative">🎨 Kreativ</span></div>
+          <div class="persona-pill" data-p="code" onclick="window.switchPersona(this);window.setJarvisMode('deep')" title="Kodexpert"><span data-i18n="p_code">💻 Kod</span></div>
+          <div class="persona-pill" data-p="direct" onclick="window.switchPersona(this);window.setJarvisMode('focus')" title="Kortfattad & direkt"><span data-i18n="p_direct">⚡ Direkt</span></div>
+        </div>
+
+        <!-- Divider -->
+        <div class="ctrl-divider"></div>
+
+        <!-- Right: Quick actions -->
+        <div class="ctrl-group ctrl-actions">
+          <button class="qa-btn" onclick="window.switchToolTab('search');setTimeout(()=>window.loadNews?.(),100)"><span data-i18n="qa_news">📰 Nyheter</span></button>
+          <button class="qa-btn" onclick="window._fetchAndRenderWeather(window._userCity||'Stockholm')"><span data-i18n="qa_weather">🌤️ Väder</span></button>
+          <button class="qa-btn" onclick="document.getElementById('fileInput').click()">📎 Bifoga
+            <input type="file" id="fileInput" multiple accept="image/*,.pdf,.doc,.docx,.txt,.md,.csv,.xlsx,.xls,.js,.ts,.jsx,.tsx,.py,.html,.css,.json,.xml,.sh,.sql,.yaml,.yml,.rb,.go,.rs,.cpp,.c,.cs,.php,.swift" style="display:none" onchange="window.handleFile(event)">
+          </button>
+          <button class="qa-btn" onclick="window.startCVBuilder()">📄 CV</button>
+          <button class="qa-btn" onclick="window.createDocument('word')">📝 Word</button>
+          <button class="qa-btn" onclick="window.createDocument('ppt')">📊 PPT</button>
+          <button class="qa-btn" id="voiceConvBtn" onclick="window.toggleVoiceConversation()" title="Röstkonversation">🎤 Röst</button>
+        </div>
+
+      </div>
+      <div id="chat" class="chat-area"></div>
+      <div class="input-area">
+        <div id="imgPreview"></div>
+        <div class="input-wrap">
+          <input type="file" id="fileInput2" multiple accept="image/*,.pdf,.doc,.docx,.txt,.md,.csv,.xlsx,.xls,.js,.ts,.jsx,.tsx,.py,.html,.css,.json,.xml,.sh,.sql,.yaml,.yml" style="display:none" onchange="window.handleFile(event)">
+          <button class="input-icon-btn" title="Bifoga fil (PDF, bild, dokument)" onclick="document.getElementById('fileInput2').click()" style="cursor:pointer;font-size:18px">📎</button>
+          <textarea id="txt" rows="1" placeholder="Skriv vad du vill ha hjälp med..." oninput="window.onInput(this)" onkeydown="window.onKey(event)"></textarea>
+          <div class="input-right-btns">
+            <button class="input-icon-btn" id="voiceBtn" onclick="window.toggleVoice()" title="Röst">🎤</button>
+            <button class="send-btn" id="sendBtn" onclick="window.send()" disabled>↑</button>
+          </div>
+        </div>
+        <div class="input-footer">
+          <span id="wordCount"></span>
+          <span>⌘K fokus · ⌘N ny chatt · ⌘B sidebar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEB SEARCH PANEL -->
+    <div id="panel-search" class="tool-panel">
+      <div class="tool-header">
+        <div class="tool-icon">🔍</div>
+        <div>
+          <div class="tool-title">Webb-sökning</div>
+          <div class="tool-sub">Sök aktuell info från webben i realtid</div>
+        </div>
+      </div>
+      <div class="search-box-wrap">
+        <input class="search-big-input" id="wsQuery" placeholder="Sök efter vad som helst..." onkeydown="if(event.key==='Enter')window.doWebSearch()">
+        <button class="accent-btn" onclick="window.doWebSearch()">Sök →</button>
+      </div>
+      <div class="search-quick-btns">
+        <button class="qa-btn" onclick="document.getElementById('wsQuery').value='senaste nyheter Sverige';window.doWebSearch()"><span data-i18n="qa_news">📰 Nyheter</span></button>
+        <button class="qa-btn" onclick="document.getElementById('wsQuery').value='väder Stockholm imorgon';window.doWebSearch()"><span data-i18n="qa_weather">🌤️ Väder</span></button>
+        <button class="qa-btn" onclick="document.getElementById('wsQuery').value='Bitcoin pris idag';window.doWebSearch()">₿ Krypto</button>
+        <button class="qa-btn" onclick="document.getElementById('wsQuery').value='fotboll resultat idag';window.doWebSearch()">⚽ Sport</button>
+        <button class="qa-btn" onclick="document.getElementById('wsQuery').value='AI nyheter 2025';window.doWebSearch()">🤖 AI</button>
+      </div>
+      <div id="searchOutput" class="search-results-area"></div>
+    </div>
+
+    <!-- IMAGE GEN PANEL -->
+    <div id="panel-image" class="tool-panel">
+      <div class="tool-header">
+        <div class="tool-icon">🎨</div>
+        <div>
+          <div class="tool-title">AI Bildgenerering</div>
+          <div class="tool-sub">DALL-E 3 · Flux AI · 9 stilar · 3 format</div>
+        </div>
+      </div>
+      <div class="img-gen-wrap">
+        <textarea class="big-textarea" id="imgPrompt" placeholder="Beskriv exakt vad du vill se — ju mer detaljer desto bättre bild.&#10;Exempel: 'En gammal fyr vid havet i solnedgång, dramatiska moln, oljemålning'" rows="4"></textarea>
+        <div class="img-options" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <select class="styled-select" id="imgStyle">
+            <option value="">🖼️ Välj stil...</option>
+            <option value="realistic photo">📷 Realistisk foto</option>
+            <option value="portrait photo">🤳 Porträttfoto</option>
+            <option value="anime style">🎌 Anime / Manga</option>
+            <option value="oil painting">🖌️ Oljemålning</option>
+            <option value="watercolor">💧 Akvarell</option>
+            <option value="3D render">🎮 3D Render</option>
+            <option value="pencil sketch">✏️ Blyertsteckning</option>
+            <option value="cyberpunk neon">🌆 Cyberpunk Neon</option>
+            <option value="minimalist flat">⬜ Minimalistisk</option>
+            <option value="fantasy art">🐉 Fantasy Art</option>
+          </select>
+          <select class="styled-select" id="imgSize">
+            <option value="1024x1024">⬛ 1:1 Kvadrat</option>
+            <option value="1792x1024">📺 16:9 Liggande</option>
+            <option value="1024x1792">📱 9:16 Stående</option>
+          </select>
+        </div>
+        <button class="accent-btn full-btn" id="imgGenBtn" onclick="window.generateImage()" style="font-size:15px;padding:14px">✨ Generera bild</button>
+        <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:6px">Klicka på en genererad bild för att zooma · ⬇ för att ladda ner</div>
+      </div>
+      <div id="imgGallery" class="img-gallery"></div>
+    </div>
+
+    <!-- MUSIC GEN PANEL -->
+    <div id="panel-music" class="tool-panel pro-panel">
+      <div class="pro-lock" id="musicLock">
+        <div class="pro-lock-icon">🎵</div>
+        <div class="pro-lock-title">Musikgenerering — Pro-funktion</div>
+        <div class="pro-lock-sub">Generera AI-musik med beskrivning — genre, stil, stämning</div>
+        <button class="pro-unlock-btn" onclick="window.activatePro()">🚀 Aktivera Pro</button>
+        <div class="pro-features-list">
+          <div class="pro-feature">✓ Beskriv musik med ord</div>
+          <div class="pro-feature">✓ Välj genre och stil</div>
+          <div class="pro-feature">✓ Instrumental eller med text</div>
+          <div class="pro-feature">✓ Ladda ner genererad musik</div>
+        </div>
+      </div>
+      <div class="pro-content" id="musicContent" style="display:none">
+      <div class="tool-header">
+        <div class="tool-icon">🎵</div>
+        <div>
+          <div class="tool-title">Musikgenerering</div>
+          <div class="tool-sub">Generera AI-musik med Suno AI</div>
+        </div>
+      </div>
+      <div class="music-gen-wrap">
+        <textarea class="big-textarea" id="musicPrompt" placeholder="Beskriv musiken... t.ex. 'Lugn ambient musik för att fokusera, piano och natursound'" rows="3"></textarea>
+        <div class="music-options">
+          <input class="styled-input" id="musicTitle" placeholder="Titel (valfritt)">
+          <select class="styled-select" id="musicStyle">
+            <option value="">Välj genre</option>
+            <option value="pop">Pop</option>
+            <option value="hip hop">Hip-Hop</option>
+            <option value="electronic">Electronic</option>
+            <option value="ambient">Ambient</option>
+            <option value="rock">Rock</option>
+            <option value="jazz">Jazz</option>
+            <option value="classical">Klassisk</option>
+            <option value="lofi hip hop">Lo-Fi</option>
+            <option value="synthwave">Synthwave</option>
+            <option value="arabic">Arabisk</option>
+          </select>
+          <label class="toggle-label">
+            <input type="checkbox" id="instrumental"> Instrumental (utan text)
+          </label>
+        </div>
+        <button class="accent-btn full-btn" id="musicGenBtn" onclick="window.generateMusic()">🎼 Generera musik</button>
+      </div>
+      <div id="musicResults" class="music-results"></div>
+      <div class="suno-note">
+        <div class="note-card">
+          <strong>🔑 Suno API</strong><br>
+          Lägg till <code>SUNO_KEY</code> i Vercel Environment Variables för att aktivera riktig musikgenerering.
+        </div>
+      </div>
+      </div><!-- end pro-content -->
+    </div>
+
+    <!-- CODE EDITOR PANEL -->
+    <div id="panel-code" class="tool-panel">
+      <div class="editor-topbar">
+        <div class="editor-tabs">
+          <button class="editor-tab active" id="edHtml" onclick="window.switchEditorTab('html')">HTML</button>
+          <button class="editor-tab" id="edCss" onclick="window.switchEditorTab('css')">CSS</button>
+          <button class="editor-tab" id="edJs" onclick="window.switchEditorTab('js')">JS</button>
+        </div>
+        <div class="editor-actions">
+          <button class="editor-btn" onclick="window.editorAI?.()">🤖 AI-hjälp</button>
+          <button class="editor-btn" onclick="window.runCode()">▶ Kör</button>
+          <button class="editor-btn accent" onclick="window.downloadCode()">⬇ Ladda ner</button>
+        </div>
+      </div>
+      <div class="editor-body">
+        <div class="code-editor-wrap">
+          <div class="line-numbers" id="lineNums">1</div>
+          <textarea class="code-editor" id="codeEditor" spellcheck="false" oninput="window.updateLineNums()"  onkeydown="window.editorKeydown(event)" placeholder="// Skriv din kod här..."></textarea>
+        </div>
+        <div class="preview-pane">
+          <div class="preview-header">
+            <span>Förhandsvisning</span>
+            <button class="editor-btn small" onclick="window.open('about:blank').document.write($("previewFrame").srcdoc)">⤢ Fullskärm</button>
+          </div>
+          <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+      </div>
+      <div id="editorAIChat" class="editor-ai-chat"></div>
+    </div>
+
+    <!-- FILM PRO PANEL -->
+    <div id="panel-film" class="tool-panel pro-panel">
+      <div class="pro-lock" id="filmLock">
+        <div class="pro-lock-icon">🎬</div>
+        <div class="pro-lock-title">Film-AI — Pro-funktion</div>
+        <div class="pro-lock-sub">Generera filmskript, storyboards och manusskisser med AI</div>
+        <button class="pro-unlock-btn" onclick="window.activatePro()">🚀 Aktivera Pro</button>
+        <div class="pro-features-list">
+          <div class="pro-feature">✓ AI-genererade filmskript</div>
+          <div class="pro-feature">✓ Storyboard-skapare</div>
+          <div class="pro-feature">✓ Karaktärsbeskrivningar</div>
+          <div class="pro-feature">✓ Exportera som PDF</div>
+        </div>
+      </div>
+      <div class="pro-content" id="filmContent" style="display:none">
+        <div class="tool-header">
+          <div class="tool-icon">🎬</div>
+          <div><div class="tool-title">Film-AI</div><div class="tool-sub">Skapa filmskript och storyboards</div></div>
+        </div>
+        <div class="film-wrap">
+          <input class="styled-input full-width" id="filmTitle" placeholder="Filmens titel">
+          <textarea class="big-textarea" id="filmIdea" placeholder="Beskriv din filmidé... t.ex. 'En thriller om en hackare som avslöjar en statshemlighet'" rows="4"></textarea>
+          <div class="film-options">
+            <select class="styled-select" id="filmGenre">
+              <option value="thriller">Thriller</option>
+              <option value="drama">Drama</option>
+              <option value="action">Action</option>
+              <option value="comedy">Komedi</option>
+              <option value="sci-fi">Sci-Fi</option>
+              <option value="horror">Skräck</option>
+              <option value="romance">Romantik</option>
+            </select>
+            <select class="styled-select" id="filmLength">
+              <option value="kort">Kortfilm (10-15 min)</option>
+              <option value="medel">Mellanlång (30-45 min)</option>
+              <option value="lång">Lång (90+ min)</option>
+            </select>
+          </div>
+          <button class="accent-btn full-btn" onclick="window.generateFilmScript()">🎬 Generera skript</button>
+          <div id="filmOutput" class="film-output"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WEBSITE BUILDER PRO PANEL -->
+    <div id="panel-website" class="tool-panel pro-panel">
+      <div class="pro-lock" id="websiteLock">
+        <div class="pro-lock-icon">🌐</div>
+        <div class="pro-lock-title">Hemsidebyggare — Pro-funktion</div>
+        <div class="pro-lock-sub">Bygg kompletta hemsidor med AI — bara beskriv vad du vill ha</div>
+        <button class="pro-unlock-btn" onclick="window.activatePro()">🚀 Aktivera Pro</button>
+        <div class="pro-features-list">
+          <div class="pro-feature">✓ Komplett HTML/CSS/JS-generering</div>
+          <div class="pro-feature">✓ Responsiv design</div>
+          <div class="pro-feature">✓ Redigera live i editorn</div>
+          <div class="pro-feature">✓ Ladda ner färdig hemsida</div>
+        </div>
+      </div>
+      <div class="pro-content" id="websiteContent" style="display:none">
+        <div class="tool-header">
+          <div class="tool-icon">🌐</div>
+          <div><div class="tool-title">Hemsidebyggare</div><div class="tool-sub">Beskriv din hemsida — AI bygger den åt dig</div></div>
+        </div>
+        <div class="website-wrap">
+          <input class="styled-input full-width" id="websiteName" placeholder="Hemsidans namn / företag">
+          <textarea class="big-textarea" id="websiteDesc" placeholder="Beskriv din hemsida... t.ex. 'En modern restauranghemsida med meny, öppettider och kontaktformulär. Mörkgrön färgton, elegant stil.'" rows="5"></textarea>
+          <div class="website-options">
+            <select class="styled-select" id="websiteType">
+              <option value="landing">Landningssida</option>
+              <option value="portfolio">Portfolio</option>
+              <option value="restaurant">Restaurang</option>
+              <option value="ecommerce">E-handel</option>
+              <option value="blog">Blogg</option>
+              <option value="company">Företag</option>
+              <option value="personal">Personlig</option>
+            </select>
+            <select class="styled-select" id="websiteStyle">
+              <option value="modern">Modern</option>
+              <option value="minimal">Minimalistisk</option>
+              <option value="bold">Djärv</option>
+              <option value="elegant">Elegant</option>
+              <option value="dark">Mörk</option>
+            </select>
+          </div>
+          <button class="accent-btn full-btn" id="websiteBuildBtn" onclick="window.buildWebsite()">🌐 Bygg hemsida</button>
+          <div id="websiteOutput" class="website-output"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div id="modalOverlay" onclick="window.closeModal()"></div>
+
+<!-- Stats Modal -->
+<div id="statsModal" class="modal">
+  <div class="modal-header"><h3>📊 Statistik & Minne</h3><button onclick="window.closeModal()">✕</button></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div id="st_chats">0</div><div>Chattar</div></div>
+    <div class="stat-card"><div id="st_msgs">0</div><div>Meddelanden</div></div>
+    <div class="stat-card"><div id="st_words">0</div><div>Ord skickade</div></div>
+    <div class="stat-card"><div id="st_days">0</div><div>Dagar aktiv</div></div>
+  </div>
+  <h4 style="margin:16px 0 10px">🧠 Minnen</h4>
+  <div id="memList"></div>
+  <button class="danger-btn" onclick="window.clearMemories()">🗑️ Rensa alla minnen</button>
+</div>
+
+<!-- KB Panel -->
+<div id="kbPanel" class="modal">
+  <div class="modal-header"><h3>📚 Kunskapsbas</h3><button onclick="window.closeModal()">✕</button></div>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Lär JARVIS om dig, ditt jobb och dina projekt.</p>
+  <div id="kbList" style="max-height:280px;overflow-y:auto;margin-bottom:14px"></div>
+  <input class="modal-input" id="kbTitle" placeholder="Titel">
+  <textarea class="modal-textarea" id="kbContent" placeholder="Innehåll..." rows="3"></textarea>
+  <button class="accent-btn" onclick="window.addKBEntry()">+ Lägg till</button>
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+  <div class="modal-header"><h3>⚙️ Inställningar</h3><button onclick="window.closeModal()">✕</button></div>
+  <div class="setting-row">
+    <label>Personlighet</label>
+    <select class="modal-select" id="personalitySelect" onchange="window.savePersonality()">
+      <option value="jarvis">JARVIS (standard)</option>
+      <option value="friendly">Vänlig & Casual</option>
+      <option value="mentor">Mentor & Pedagogisk</option>
+      <option value="direct">Direkt & Kortfattad</option>
+    </select>
+  </div>
+  <div class="setting-row">
+    <label>Anpassad instruktion</label>
+    <textarea class="modal-textarea" id="customInst" placeholder="Ex: Svara alltid på svenska, var kortfattad..." rows="3"></textarea>
+  </div>
+  <div class="setting-row">
+    <label>Röstuppläsning</label>
+    <button class="toggle-btn" id="voiceToggle" onclick="window.toggleVoiceOut()"></button>
+  </div>
+  <div class="setting-row">
+    <label>JARVIS-läge</label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="mode-btn" data-mode="standard" onclick="window.setJarvisMode('standard')">🤖 Standard</button>
+      <button class="mode-btn" data-mode="focus" onclick="window.setJarvisMode('focus')">🎯 Fokus</button>
+      <button class="mode-btn" data-mode="deep" onclick="window.setJarvisMode('deep')">🧠 Djup</button>
+      <button class="mode-btn" data-mode="creative" onclick="window.setJarvisMode('creative')">✨ Kreativ</button>
+      <button class="mode-btn" data-mode="tutor" onclick="window.setJarvisMode('tutor')">📚 Lärare</button>
+    </div>
+  </div>
+  <button class="accent-btn" onclick="window.saveSettings()">💾 Spara</button>
+  <hr style="border-color:var(--border);margin:16px 0">
+  <div class="setting-row">
+    <label>Byt lösenord</label>
+    <input type="password" id="newPass1" class="modal-input" placeholder="Nytt lösenord">
+    <input type="password" id="newPass2" class="modal-input" placeholder="Bekräfta" style="margin-top:8px">
+    <div id="passMsg" style="font-size:12px;margin-top:6px"></div>
+    <button class="accent-btn" onclick="window.changePassword()" style="margin-top:8px">Byt lösenord</button>
+  </div>
+  <hr style="border-color:var(--border);margin:16px 0">
+  <button class="danger-btn" onclick="window.logout()">🚪 Logga ut</button>
+  <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:14px">JARVIS 5.0 · av Hussein & Claude · © 2025 Ctrl Labs</p>
+</div>
+
+<!-- Appearance Modal -->
+<div id="appearanceModal" class="modal">
+  <div class="modal-header"><h3>🎨 Utseende</h3><button onclick="window.closeModal()">✕</button></div>
+  <div class="setting-row">
+    <label>Accentfärg</label>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button onclick="window.setAccent('')" class="color-swatch" style="background:#6366f1" title="Indigo"></button>
+      <button onclick="window.setAccent('teal')" class="color-swatch" style="background:#14b8a6" title="Teal"></button>
+      <button onclick="window.setAccent('rose')" class="color-swatch" style="background:#f43f5e" title="Rosa"></button>
+      <button onclick="window.setAccent('amber')" class="color-swatch" style="background:#f59e0b" title="Amber"></button>
+      <button onclick="window.setAccent('blue')" class="color-swatch" style="background:#3b82f6" title="Blå"></button>
+      <button onclick="window.setAccent('green')" class="color-swatch" style="background:#10a37f" title="Grön"></button>
+    </div>
+  </div>
+  <div class="setting-row">
+    <label>Ljust / Mörkt</label>
+    <button class="toggle-btn" id="lightToggle" onclick="window.toggleLight()"></button>
+  </div>
+  <div class="setting-row">
+    <label>Typsnitt</label>
+    <div style="display:flex;gap:8px">
+      <button class="font-opt active" data-f="dm" onclick="window.setFont('dm')">DM Sans</button>
+      <button class="font-opt" data-f="mono" onclick="window.setFont('mono')">Mono</button>
+      <button class="font-opt" data-f="grotesk" onclick="window.setFont('grotesk')">Grotesk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Modal -->
+<div id="adminModal" class="modal" style="max-width:700px">
+  <div class="modal-header"><h3>👑 Admin</h3><button onclick="window.closeModal()">✕</button></div>
+  <div id="adminContent"></div>
+</div>
+
+<!-- Pro Activation Modal -->
+<div id="proModal" class="modal">
+  <div class="modal-header"><h3>🚀 Aktivera Pro</h3><button onclick="window.closeModal()">✕</button></div>
+  <div id="proModalContent">
+    <div style="text-align:center;padding:10px 0 20px">
+      <div style="font-size:44px;margin-bottom:12px">⭐</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:6px">JARVIS Pro</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6">Lås upp Musik-AI, Film-AI och Hemsidebyggaren</div>
+      <div class="pro-features-list" style="text-align:left;margin-bottom:20px">
+        <div class="pro-feature">🎵 Musikgenerering med AI</div>
+        <div class="pro-feature">🎬 Film-AI & Skriptgenerator</div>
+        <div class="pro-feature">🌐 Hemsidebyggare</div>
+        <div class="pro-feature">⚡ Prioriterad AI-kapacitet</div>
+      </div>
+    </div>
+    <div style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">Har du redan en Pro-kod?</div>
+      <input class="modal-input" id="proCodeInput" placeholder="Ange Pro-kod..." style="text-align:center;font-size:16px;letter-spacing:3px;margin-bottom:8px">
+      <button class="accent-btn full-btn" onclick="window.checkProCode()">Aktivera →</button>
+    </div>
+    <div style="background:var(--bg3);border-radius:12px;padding:16px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">Köp Pro-åtkomst</div>
+      <input class="modal-input" id="proReqName" placeholder="Ditt namn">
+      <input class="modal-input" id="proReqEmail" placeholder="Din e-post" type="email">
+      <textarea class="modal-input" id="proRequestMsg" placeholder="Berätta kort om hur du tänker använda JARVIS Pro..." rows="2" style="resize:none"></textarea>
+      <button class="accent-btn full-btn" style="background:linear-gradient(135deg,#f59e0b,#ef4444)" onclick="window.sendProRequest()">📩 Skicka förfrågan till Ctrl Labs</button>
+      <p style="font-size:11px;color:var(--text3);margin-top:10px;text-align:center">Vi på Ctrl Labs återkommer inom 24h</p>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+<script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script>if(typeof pdfjsLib!=='undefined'){pdfjsLib.GlobalWorkerOptions.workerSrc='https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';}</script>
+<!-- JARVIS 5.0 — Split for maintainability -->
+<script src="i18n.js?v=1780150992"></script>
+<script src="app.js?v=1780150992"></script>
+<script src="features.js?v=1780150992"></script>
+</body>
 </html>
