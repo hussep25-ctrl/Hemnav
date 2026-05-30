@@ -1068,8 +1068,8 @@ async function sendStreaming(messages) {
   g.innerHTML = `
     <div class="msg-av ai">J</div>
     <div class="msg-content">
-      <div class="msg-name">JARVIS · <span id="streamProvider"></span> ${timeStr}</div>
-      <div class="bubble ai" id="streamBubble"><span class="stream-cursor"></span></div>
+      <div class="msg-name">JARVIS · <span class="stream-provider"></span> ${timeStr}</div>
+      <div class="bubble ai stream-bubble"><span class="stream-cursor"></span></div>
       <div class="msg-actions">
         <button class="msg-action-btn" onclick="navigator.clipboard.writeText(this.closest('.msg-group').querySelector('.bubble').innerText);showToast('Kopierat!')">📋</button>
         <button class="msg-action-btn" onclick="window.speakText?.(this.closest('.msg-group').querySelector('.bubble').innerText)">🔊</button>
@@ -1080,8 +1080,9 @@ async function sendStreaming(messages) {
   chat.appendChild(g);
   scrollChatToBottom();
 
-  const bubble  = $('streamBubble');
-  const provEl  = $('streamProvider');
+  // Use references scoped to THIS message group — never getElementById
+  const bubble  = g.querySelector('.stream-bubble');
+  const provEl  = g.querySelector('.stream-provider');
   let fullText  = '';
 
   try {
